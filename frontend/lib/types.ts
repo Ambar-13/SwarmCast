@@ -4,7 +4,7 @@
  */
 
 export type EpistemicTier = "GROUNDED" | "DIRECTIONAL" | "ASSUMED";
-export type Jurisdiction = "EU" | "US" | "UK" | "Singapore" | "UAE";
+export type Jurisdiction = "EU" | "US" | "UK" | "Singapore" | "UAE" | "China" | "Canada" | "Japan" | "Switzerland" | "Australia" | "India" | "Russia" | "South Korea" | "France" | "Germany";
 
 export type PenaltyType =
   | "none"

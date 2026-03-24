@@ -65,8 +65,6 @@ runs/
 *.jpg
 *.csv
 
-# Streamlit
-.streamlit/secrets.toml
 
 # Runtime / logs
 *.log

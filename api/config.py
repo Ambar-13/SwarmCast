@@ -19,11 +19,11 @@ class Settings(BaseSettings):
     default_num_rounds: int = 16
 
     # OpenAI — required for swarm elicitation and run_llm_strategic
-    # Priority: POLICYLAB_OPENAI_API_KEY env var > OPENAI_API_KEY env var > api/.env file
+    # Priority: SWARMCAST_OPENAI_API_KEY env var > OPENAI_API_KEY env var > api/.env file
     openai_api_key: str | None = None
 
     model_config = SettingsConfigDict(
-        env_prefix="POLICYLAB_",
+        env_prefix="SWARMCAST_",
         env_file=str(_ENV_FILE),
         env_file_encoding="utf-8",
         extra="ignore",
@@ -33,12 +33,12 @@ class Settings(BaseSettings):
         """Check all sources at call time (not just at startup).
 
         Priority order:
-          1. POLICYLAB_OPENAI_API_KEY (captured at startup by pydantic-settings)
+          1. SWARMCAST_OPENAI_API_KEY (captured at startup by pydantic-settings)
           2. OPENAI_API_KEY env var (read live — picks up changes without restart)
           3. OPENAI_API_KEY in api/.env file (read live)
         """
         # Live read from environment (catches vars set after process start)
-        live_policylab = os.environ.get("POLICYLAB_OPENAI_API_KEY")
+        live_swarmcast = os.environ.get("SWARMCAST_OPENAI_API_KEY")
         live_openai    = os.environ.get("OPENAI_API_KEY")
 
         # Also check .env file directly so it works even without env export
@@ -51,11 +51,11 @@ class Settings(BaseSettings):
                 k, _, v = line.partition("=")
                 k = k.strip()
                 v = v.strip().strip('"').strip("'")
-                if k in ("OPENAI_API_KEY", "POLICYLAB_OPENAI_API_KEY") and v:
+                if k in ("OPENAI_API_KEY", "SWARMCAST_OPENAI_API_KEY") and v:
                     dotenv_key = v
                     break
 
-        return live_policylab or self.openai_api_key or live_openai or dotenv_key
+        return live_swarmcast or self.openai_api_key or live_openai or dotenv_key
 
 
 settings = Settings()

@@ -1,4 +1,4 @@
-"""Main simulation entry point for PolicyLab v2.
+"""Main simulation entry point for Swarmcast v2.
 
 Orchestrates the per-round hybrid loop:
   1. Population generation (vectorized PopulationArray or legacy per-agent)
@@ -62,6 +62,8 @@ from policylab.v2.population.vectorized import (
 )
 from policylab.v2.international.jurisdictions import (
     MultiJurisdictionState, make_eu, make_us, make_uk, make_singapore, make_uae,
+    make_china, make_canada, make_japan, make_switzerland, make_australia, make_india,
+    make_russia, make_south_korea, make_france, make_germany,
 )
 from policylab.v2.simulation.events import EventQueue
 
@@ -139,12 +141,17 @@ class HybridSimConfig:
 
     # ── New in v2.1: multi-jurisdiction ─────────────────────────────────────
     source_jurisdiction: str = "EU"
-    """Source jurisdiction (where policy is enacted). Options: EU, US, UK"""
+    """Source jurisdiction (where the rule is enacted. Any key in _JUR_MAP is valid.)"""
 
     destination_jurisdictions: list[str] = dataclasses.field(
-        default_factory=lambda: ["US", "UK", "Singapore", "UAE"]
+        default_factory=lambda: ["US", "UK", "Singapore", "UAE",
+                                  "Canada", "Japan", "Switzerland",
+                                  "Australia", "India"]
     )
-    """Destination jurisdictions for relocating companies."""
+    """Candidate destinations for relocating agents.
+    Supported: EU, US, UK, Singapore, UAE, China, Canada, Japan,
+    Switzerland, Australia, India, Russia, South Korea, France, Germany.
+    Any value not in _JUR_MAP is silently dropped at runtime."""
 
     relocation_temperature: float = 0.1
     """Softmax temperature for destination selection.
@@ -418,7 +425,12 @@ def run_hybrid_simulation(
 
     # 3b. Multi-jurisdiction state
     _JUR_MAP = {"EU": make_eu, "US": make_us, "UK": make_uk,
-                "Singapore": make_singapore, "UAE": make_uae}
+                "Singapore": make_singapore, "UAE": make_uae,
+                "China": make_china, "Canada": make_canada, "Japan": make_japan,
+                "Switzerland": make_switzerland, "Australia": make_australia,
+                "India": make_india, "Russia": make_russia,
+                "South Korea": make_south_korea, "France": make_france,
+                "Germany": make_germany}
     source_jur = _JUR_MAP.get(config.source_jurisdiction, make_eu)()
     source_jur.company_count = config.n_population
     dest_jurs = [_JUR_MAP[j]() for j in config.destination_jurisdictions

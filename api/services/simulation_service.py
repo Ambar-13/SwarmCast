@@ -1,7 +1,8 @@
-"""Adapter between FastAPI schemas and the policylab simulation engine.
+"""Adapter between the FastAPI layer and the simulation engine.
 
-Never modifies policylab/. Converts Pydantic request → policylab kwargs,
-calls run_hybrid_simulation(), converts HybridSimResult → response dict.
+Converts Pydantic request schemas → run_hybrid_simulation() kwargs,
+then converts HybridSimResult back to a serialisable response dict.
+The policylab/ package is never modified here — this is a pure wrapper.
 """
 from __future__ import annotations
 

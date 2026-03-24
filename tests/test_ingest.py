@@ -1,4 +1,4 @@
-"""Tests for the PolicyLab v2 document ingestion pipeline.
+"""Tests for the Swarmcast v2 document ingestion pipeline.
 
 Covers:
   1. Document loader — text chunking, char_offset correctness (Fix 3)

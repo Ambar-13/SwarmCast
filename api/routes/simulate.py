@@ -27,7 +27,7 @@ async def swarm_smoke_test() -> dict:
     if not api_key:
         raise HTTPException(
             status_code=400,
-            detail="OPENAI_API_KEY or POLICYLAB_OPENAI_API_KEY not set.",
+            detail="OPENAI_API_KEY or SWARMCAST_OPENAI_API_KEY not set.",
         )
     try:
         return await smoke_test_eu_ai_act(api_key=api_key)

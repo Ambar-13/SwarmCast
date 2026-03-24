@@ -1,4 +1,4 @@
-"""PolicyLab FastAPI application.
+"""Swarmcast FastAPI application.
 
 Start with:
     cd api && uvicorn main:app --reload --port 8000
@@ -64,7 +64,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="PolicyLab API",
+    title="Swarmcast API",
     version="1.0.0",
     lifespan=lifespan,
     default_response_class=NumpyJSONResponse,

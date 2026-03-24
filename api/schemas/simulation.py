@@ -21,7 +21,7 @@ class SimConfigRequest(BaseModel):
     use_network: bool = True
     use_vectorized: bool = True
     source_jurisdiction: str = "EU"
-    destination_jurisdictions: list[str] = ["US", "UK", "Singapore", "UAE"]
+    destination_jurisdictions: list[str] = ["US", "UK", "Singapore", "UAE", "Canada", "Japan", "Switzerland", "Australia", "India"]
     relocation_temperature: float = 0.1
     adversarial_injection_rate: float = 0.0
     adversarial_injection_direction: float = 1.0

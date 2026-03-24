@@ -18,8 +18,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "PolicyLab",
-  description: "Interactive AI governance policy simulator",
+  title: "Swarmcast",
+  description: "Multi-agent behavioral simulation with LLM swarm intelligence",
 };
 
 export default function RootLayout({

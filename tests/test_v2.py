@@ -1,4 +1,4 @@
-"""Tests for PolicyLab v2 hybrid simulation engine.
+"""Tests for Swarmcast v2 hybrid simulation engine.
 
 These tests verify:
   1. Every empirical calibration is arithmetically correct

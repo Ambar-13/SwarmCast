@@ -1,5 +1,5 @@
 """
-PolicyLab document ingestion pipeline.
+Swarmcast document ingestion pipeline.
 
 End-to-end: document file (PDF/txt/md/docx) or raw text string
 → PolicySpec + HybridSimConfig overrides ready for simulation.
@@ -331,9 +331,9 @@ def ingest_and_simulate(
 
     import warnings
     warnings.warn(
-        "ingest_and_simulate() is a convenience wrapper that is not used by app.py or cli.py. "
+        "ingest_and_simulate() is a convenience wrapper not used by the API or CLI. "
         "Call ingest() and run_hybrid_simulation() directly for full control. "
-        "This function will be removed in a future version.",
+        "This function will be removed in a future release.",
         DeprecationWarning,
         stacklevel=2,
     )

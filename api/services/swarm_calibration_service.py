@@ -1,4 +1,4 @@
-"""Swarm elicitation service for PolicyLab.
+"""Swarm elicitation service for Swarmcast.
 
 Runs parallel LLM calls across company-type persona swarms to produce
 policy-specific behavioral priors. Results are tagged [SWARM-ELICITED]

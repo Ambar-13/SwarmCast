@@ -2,7 +2,11 @@ import type { SimConfigRequest } from "@/lib/types";
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-export const JURISDICTIONS = ["EU", "US", "UK", "Singapore", "UAE"] as const;
+export const JURISDICTIONS = [
+  "EU", "US", "UK", "Singapore", "UAE",
+  "China", "Canada", "Japan", "Switzerland", "Australia", "India",
+  "Russia", "South Korea", "France", "Germany",
+] as const;
 
 export const PENALTY_LABELS: Record<string, string> = {
   none: "None",
@@ -35,7 +39,7 @@ export const DEFAULT_SIM_CONFIG: SimConfigRequest = {
   use_network: true,
   use_vectorized: true,
   source_jurisdiction: "EU",
-  destination_jurisdictions: ["US", "UK", "Singapore", "UAE"],
+  destination_jurisdictions: ["US", "UK", "Singapore", "UAE", "Canada", "Japan", "Switzerland", "Australia", "India"],
   relocation_temperature: 0.1,
   adversarial_injection_rate: 0.0,
   adversarial_injection_direction: 1.0,

@@ -80,6 +80,9 @@ class Jurisdiction:
         # Regulatory capacity by jurisdiction type (in terms of AI companies)
         CAPACITY = {
             "EU": 500, "US": 400, "UK": 200, "Singapore": 80, "UAE": 50,
+            "China": 600, "Canada": 150, "Japan": 200,
+            "Switzerland": 60, "Australia": 100, "India": 300,
+            "Russia": 80, "South Korea": 150, "France": 200, "Germany": 250,
         }
         capacity = CAPACITY.get(self.name, 100)
         # base_sensitivity: how much each doubling of companies stresses the regulator
@@ -163,6 +166,153 @@ def make_uae() -> Jurisdiction:
         name="UAE", burden=5.0, corporate_tax=9.0,
         ai_stance="permissive", company_count=10,
         innovation_subsidy=10.0,
+    )
+
+
+def make_china() -> Jurisdiction:
+    """China — strict/high-burden; AIGC regulations + platform controls.
+
+    burden=60 reflects China's Generative AI Regulations (2023) and Algorithm
+    Recommendation Regulations: mandatory security assessments, content controls,
+    and real-name verification. corporate_tax=25 is the standard enterprise rate.
+    innovation_subsidy=12 models the New Generation AI Development Plan (AIDP)
+    state grants. Large initial company_count reflects China's substantial domestic
+    AI sector. [ASSUMED] all magnitudes.
+    """
+    return Jurisdiction(
+        name="China", burden=60.0, corporate_tax=25.0,
+        ai_stance="strict", company_count=200,
+        innovation_subsidy=12.0,
+    )
+
+def make_canada() -> Jurisdiction:
+    """Canada — moderate; AIDA (Artificial Intelligence and Data Act) framework.
+
+    burden=30 reflects Canada's proposed AIDA: risk-tiered obligations for
+    high-impact systems, but principles-based rather than prescriptive.
+    corporate_tax=15 is the federal rate (provinces add 8–16%). innovation_subsidy=6
+    models the Pan-Canadian AI Strategy (CIFAR/CCAI) grants. [ASSUMED] magnitudes.
+    """
+    return Jurisdiction(
+        name="Canada", burden=30.0, corporate_tax=15.0,
+        ai_stance="moderate", company_count=60,
+        innovation_subsidy=6.0,
+    )
+
+def make_japan() -> Jurisdiction:
+    """Japan — moderate/agile; soft-law AI governance via Ministry of Economy guidelines.
+
+    burden=22 reflects Japan's non-binding AI governance approach (2024 METI
+    guidelines) with no mandatory AI Act equivalent. corporate_tax=23.2 is the
+    standard effective rate. innovation_subsidy=7 models MEXT AI research
+    investments and the AI Strategy 2022. [ASSUMED] magnitudes.
+    """
+    return Jurisdiction(
+        name="Japan", burden=22.0, corporate_tax=23.2,
+        ai_stance="moderate", company_count=50,
+        innovation_subsidy=7.0,
+    )
+
+def make_switzerland() -> Jurisdiction:
+    """Switzerland — permissive/low-tax; no standalone AI law, GDPR-equivalent only.
+
+    burden=15 reflects Switzerland's EU-adjacent but independent regulatory stance:
+    nFADP (data protection) applies but no AI-specific regulation. corporate_tax=12
+    reflects the effective cantonal average (Zug ~11.9%, Zurich ~19%). innovation_subsidy=4
+    models ETH/EPFL research commercialisation grants. [ASSUMED] magnitudes.
+    """
+    return Jurisdiction(
+        name="Switzerland", burden=15.0, corporate_tax=12.0,
+        ai_stance="permissive", company_count=30,
+        innovation_subsidy=4.0,
+    )
+
+def make_australia() -> Jurisdiction:
+    """Australia — moderate; voluntary AI Ethics Framework, mandatory guardrails for high-risk.
+
+    burden=28 reflects Australia's Safe and Responsible AI consultation (2023):
+    risk-based voluntary commitments with targeted mandatory rules for high-risk.
+    corporate_tax=30 is the standard rate. innovation_subsidy=5 models CSIRO's
+    National AI Centre and Industry Growth Programme. [ASSUMED] magnitudes.
+    """
+    return Jurisdiction(
+        name="Australia", burden=28.0, corporate_tax=30.0,
+        ai_stance="moderate", company_count=35,
+        innovation_subsidy=5.0,
+    )
+
+def make_india() -> Jurisdiction:
+    """India — permissive/emerging; light-touch AI policy, DPDP Act for data only.
+
+    burden=12 reflects India's approach: the Digital Personal Data Protection Act
+    (2023) governs data but there is no AI-specific regulation. India has explicitly
+    positioned itself as an AI-friendly destination. corporate_tax=22 is the reduced
+    rate for domestic companies. innovation_subsidy=9 models IndiaAI Mission funding.
+    [ASSUMED] all magnitudes.
+    """
+    return Jurisdiction(
+        name="India", burden=12.0, corporate_tax=22.0,
+        ai_stance="permissive", company_count=45,
+        innovation_subsidy=9.0,
+    )
+
+
+def make_russia() -> Jurisdiction:
+    """Russia — strict/isolated; sovereign AI doctrine, heavy state control.
+
+    burden=65 reflects Russia's Digital Economy programme requirements, data
+    localisation laws (Federal Law 242-FZ), and post-2022 sanctions environment
+    that creates significant operational complexity for international AI firms.
+    corporate_tax=20 is the standard rate. innovation_subsidy=8 models state
+    AI programme grants, primarily accessible to domestic firms. [ASSUMED] magnitudes.
+    """
+    return Jurisdiction(
+        name="Russia", burden=65.0, corporate_tax=20.0,
+        ai_stance="strict", company_count=30,
+        innovation_subsidy=8.0,
+    )
+
+def make_south_korea() -> Jurisdiction:
+    """South Korea — moderate/pro-innovation; AI Act in development, strong tech base.
+
+    burden=25 reflects South Korea's AI Basic Act (2024): risk-tiered obligations
+    for high-impact AI but with significant carve-outs for R&D and SMEs. corporate_tax=22
+    is the effective rate for large corporations. innovation_subsidy=9 models the
+    AI Semiconductor Initiative and Digital New Deal investments. [ASSUMED] magnitudes.
+    """
+    return Jurisdiction(
+        name="South Korea", burden=25.0, corporate_tax=22.0,
+        ai_stance="moderate", company_count=55,
+        innovation_subsidy=9.0,
+    )
+
+def make_france() -> Jurisdiction:
+    """France — moderate-strict; EU AI Act applies + national AI strategy (France 2030).
+
+    burden=50 reflects France's position within the EU AI Act regime plus additional
+    CNIL enforcement of GDPR for AI systems. France actively enforces data protection
+    rules (CNIL fines). corporate_tax=25 is the harmonised EU rate. innovation_subsidy=11
+    models the France 2030 plan AI investments (€2.5bn committed). [ASSUMED] magnitudes.
+    """
+    return Jurisdiction(
+        name="France", burden=50.0, corporate_tax=25.0,
+        ai_stance="strict", company_count=70,
+        innovation_subsidy=11.0,
+    )
+
+def make_germany() -> Jurisdiction:
+    """Germany — strict; EU AI Act + BaFin/BSI AI guidance for financial/critical sectors.
+
+    burden=58 reflects Germany's position as the strictest EU AI Act implementer:
+    active BSI cybersecurity requirements for AI, BaFin AI model risk guidelines,
+    and the Bundesrat's push for stricter foundation model rules. corporate_tax=30
+    approximates the combined federal + trade tax effective rate. innovation_subsidy=8
+    models BMBF/BMWK AI programme funding. [ASSUMED] magnitudes.
+    """
+    return Jurisdiction(
+        name="Germany", burden=58.0, corporate_tax=30.0,
+        ai_stance="strict", company_count=90,
+        innovation_subsidy=8.0,
     )
 
 
