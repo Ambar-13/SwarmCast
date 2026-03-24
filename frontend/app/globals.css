@@ -1,0 +1,162 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Surfaces */
+  --cream-50:   #FDFAF6;
+  --cream-100:  #FAF6EF;
+  --cream-200:  #F4EDE0;
+  --cream-300:  #E8DDD0;
+  --cream-400:  #D8CBBF;
+
+  /* Text — ink does the hierarchy work */
+  --ink-900:    #1A1208;
+  --ink-700:    #3D2E1E;
+  --ink-500:    #6B5744;
+  --ink-400:    #8C7B68;
+  --ink-300:    #A69485;
+
+  /* Accent — crimson used SPARINGLY (buttons, active states, focus only) */
+  --crimson-700: #8B1A1A;
+  --crimson-600: #A82020;
+  --crimson-500: #C0392B;
+  --crimson-100: #FAE8E8;
+  --crimson-50:  #FDF4F4;
+
+  /* Semantic — carry meaning, used freely */
+  --success:    #15803D;
+  --warning:    #B45309;
+  --danger:     #DC2626;
+
+  /* Chart palette — warm but clearly distinct from each other */
+  --chart-compliance:  #8B1A1A;   /* deep crimson */
+  --chart-relocation:  #C2410C;   /* orange-red — distinct from amber warning */
+  --chart-investment:  #1D6344;   /* forest green */
+  --chart-enforcement: #1E3A8A;   /* deep blue — keeps chart contrast */
+  --chart-evasion:     #6B21A8;   /* deep purple */
+
+  /* Borders */
+  --border-warm:   rgba(60, 40, 20, 0.10);
+  --border-strong: rgba(60, 40, 20, 0.20);
+
+  /* Shadows */
+  --shadow-card:   0 1px 3px rgba(26,18,8,0.06), 0 4px 16px rgba(26,18,8,0.04);
+  --shadow-raised: 0 2px 8px rgba(26,18,8,0.08), 0 8px 32px rgba(26,18,8,0.06);
+  --shadow-focus:  0 0 0 3px rgba(139,26,26,0.18);
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  color: var(--ink-900);
+  background-color: var(--cream-50);
+  font-family: var(--font-inter), sans-serif;
+}
+
+* {
+  scrollbar-color: rgba(139,100,80,0.28) transparent;
+}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(139,100,80,0.25);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::selection {
+  background: rgba(139,26,26,0.16);
+  color: var(--ink-900);
+}
+
+@layer base {
+  h1, h2, h3, h4 { letter-spacing: -0.03em; }
+}
+
+@layer components {
+  /* ── Cards ───────────────────────────────────────────────────── */
+  .card-warm {
+    @apply rounded-2xl border bg-[var(--cream-100)];
+    border-color: var(--border-warm);
+    box-shadow: var(--shadow-card);
+  }
+  .card-raised {
+    @apply rounded-2xl border bg-[var(--cream-100)];
+    border-color: var(--border-warm);
+    box-shadow: var(--shadow-raised);
+  }
+  /* Crimson-tinted card — use sparingly (error states, severity callouts) */
+  .card-tinted {
+    @apply rounded-2xl border bg-[var(--crimson-50)];
+    border-color: var(--crimson-100);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* ── Buttons — crimson only here ──────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50;
+    background: var(--crimson-700);
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--crimson-600); }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all duration-150 active:scale-[0.97];
+    background: var(--cream-200);
+    border-color: var(--border-warm);
+    color: var(--ink-700);
+  }
+  .btn-secondary:hover { background: var(--cream-300); }
+
+  /* ── Form inputs ──────────────────────────────────────────────── */
+  .input-warm {
+    @apply w-full rounded-xl border px-3 py-2 text-sm outline-none transition-all duration-150;
+    background: var(--cream-200);
+    border-color: var(--border-warm);
+    color: var(--ink-900);
+  }
+  .input-warm::placeholder { color: var(--ink-400); }
+  .input-warm:focus {
+    border-color: var(--crimson-700);
+    box-shadow: var(--shadow-focus);
+  }
+  .select-warm { @apply input-warm cursor-pointer; }
+
+  /* ── Typography helpers — ink, not crimson ────────────────────── */
+  .kicker {
+    @apply text-[11px] font-semibold uppercase tracking-[0.22em];
+    color: var(--ink-400);
+  }
+  .metric-num {
+    font-family: var(--font-jetbrains-mono), monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Backward compat aliases for existing components ─────────── */
+  .section-kicker { @apply kicker; }
+  .metric-value   { @apply metric-num; }
+  .data-card      { @apply card-warm p-4; }
+  .panel-shell    { @apply card-raised; }
+  .panel-shell-soft { @apply card-warm; }
+
+  /* ── Divider ──────────────────────────────────────────────────── */
+  .divider-warm { @apply border-t; border-color: var(--border-warm); }
+}
+
+/* ── Animations ───────────────────────────────────────────────────── */
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmerWarm {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+@layer utilities {
+  .text-balance  { text-wrap: balance; }
+  .font-mono-num { @apply metric-num; }
+}
