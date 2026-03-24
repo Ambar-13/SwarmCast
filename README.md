@@ -398,12 +398,10 @@ Run the Evidence Pack (Analyze page → Evidence Pack button) to generate 9-run 
 
 ## 10. Known Limitations
 
-- **No equilibrium guarantee.** The simulation runs for a fixed number of rounds. It does not check for steady-state convergence.
-- **Calibrated to GDPR, not general.** The default parameters were fit to EU regulatory compliance data. For other domains (financial markets, public health), treat all moments as DIRECTIONAL or ASSUMED until recalibrated.
-- **Network is static.** The social influence graph is initialised once at simulation start and does not rewire as agents relocate or change behavior.
-- **Jurisdiction burden is endogenous but one-directional.** Regulatory burden in destination jurisdictions rises as companies arrive (logarithmic saturation), but source jurisdiction burden does not fall as companies leave.
-- **Swarm personas are AI governance–tuned.** The 23 LLM persona prompts are written for regulatory compliance scenarios. For other domains, the persona reasoning will still be directionally useful but less precisely calibrated.
-- **No financial contagion.** The investment index is an aggregate sentiment indicator. For asset pricing applications, pair outputs with a quantitative pricing model — SwarmCast gives you the behavioral layer, not the discount rate.
+- **Default calibration is GDPR-era.** Built-in empirical targets were fit to EU regulatory compliance data. For other domains, treat ASSUMED moments as directional until you recalibrate against your own targets.
+- **Network is static.** The social influence graph does not rewire as agents relocate or change behavior — a planned extension.
+- **Jurisdiction burden is one-directional.** Destination burden rises as companies arrive; source jurisdiction burden does not fall as they leave.
+- **Swarm personas are AI governance–tuned.** For other domains the persona reasoning remains directionally useful but less precisely calibrated. Custom personas can be added in `swarmcast/v2/swarm/personas.py`.
 
 ---
 
