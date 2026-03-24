@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="swarmcast_logo.svg" alt="SwarmCast" width="620" />
+  <img src="swarmcast_logo.svg" alt="SwarmCast" width="780" />
 </p>
 
 <p align="center">
