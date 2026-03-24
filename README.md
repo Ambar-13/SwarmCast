@@ -12,20 +12,26 @@
 
 ---
 
-SwarmCast is a macro behavioral simulation engine. It models how large populations of heterogeneous agents — companies, investors, regulators, consumers, traders — respond to shocks, rules, and incentives over time. It produces population-level behavioral forecasts (adoption curves, defection rates, coalition formation, jurisdiction flight, compliance timelines) with an epistemic layer that tracks exactly how grounded each output is.
+SwarmCast is a macro behavioral simulation engine. It operates at the **institutional and organizational level** — companies, investors, regulators, funds, and industry coalitions — not individual human psychology. The unit of analysis is the firm or institutional actor, and the outputs are population-level: adoption curves, defection rates, coalition formation, jurisdiction flight, compliance timelines.
 
-Built for any domain where aggregate behavior emerges from individual decisions:
+This distinction matters. Human-level dynamics (individual cognition, household behavior, social identity) operate on a different layer. SwarmCast is the institutional layer of that stack. The two are complementary: macro behavioral outputs from SwarmCast can seed or constrain a micro-level individual simulation, and vice versa. A complete picture of how a shock propagates through a society would need both layers talking to each other.
+
+Built for any domain where aggregate institutional behavior emerges from individual organizational decisions:
 
 | Domain | What you simulate |
 |---|---|
 | **Regulatory policy** | Compliance rates, evasion, jurisdiction flight, lobbying coalitions |
 | **Macroeconomics** | Market adoption, capital reallocation, investment suppression |
-| **Financial markets** | Sentiment propagation, herding, sector rotation under shock |
-| **Geopolitics** | Alliance formation, sanctions response, technology decoupling |
-| **Public health** | Behavior change under mandates, vaccine adoption, non-compliance |
-| **ESG / climate** | Corporate adaptation, greenwashing, regulatory arbitrage |
+| **Financial markets** | Institutional sentiment propagation, herding, sector rotation, positioning shifts under policy shock |
+| **Monetary policy** | Bank behavior under rate regimes, credit allocation, regulatory arbitrage |
+| **Geopolitics** | Alliance formation, sanctions response, technology decoupling, export control effects |
+| **Trade policy** | Firm-level supply chain adaptation, tariff response, reshoring decisions |
+| **Public health** | Institutional behavior under mandates — hospital systems, insurers, pharma, employers |
+| **ESG / climate** | Corporate adaptation timelines, greenwashing, regulatory arbitrage, stranded asset decisions |
+| **Labor markets** | Workforce reallocation, automation adoption curves, bargaining coalition dynamics |
+| **Infrastructure** | Adoption of standards, interoperability decisions, network effects across operators |
 
-You are not limited to presets. SwarmCast lets you define fully custom scenarios from scratch — or upload a source document (PDF, Markdown, or plain text) and have the engine parse it into a simulation-ready parameter set. A policy draft, a research paper, a regulatory filing, or a news article can all serve as scenario inputs via the `/upload` route.
+You are not limited to presets. SwarmCast lets you define fully custom scenarios from scratch — or upload a source document (PDF, Markdown, or plain text) and have the engine parse it into a simulation-ready parameter set. A policy draft, a research paper, a regulatory filing, a central bank speech, or a news article can all serve as scenario inputs via the `/upload` route.
 
 ---
 
@@ -52,7 +58,7 @@ The fastest way to use SwarmCast is the web interface. You get an interactive si
 ### Step 1 — Install Python dependencies
 
 ```bash
-cd policylab_m3
+cd SwarmCast
 pip install -e ".[dev]"
 ```
 
