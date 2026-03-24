@@ -25,6 +25,8 @@ Built for any domain where aggregate behavior emerges from individual decisions:
 | **Public health** | Behavior change under mandates, vaccine adoption, non-compliance |
 | **ESG / climate** | Corporate adaptation, greenwashing, regulatory arbitrage |
 
+You are not limited to presets. SwarmCast lets you define fully custom scenarios from scratch — or upload a source document (PDF, Markdown, or plain text) and have the engine parse it into a simulation-ready parameter set. A policy draft, a research paper, a regulatory filing, or a news article can all serve as scenario inputs via the `/upload` route.
+
 ---
 
 ## Table of Contents

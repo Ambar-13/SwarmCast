@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShieldCheck } from "lucide-react";
 import { CommandPalette } from "@/components/ui/CommandPalette";
 import { NAV_TABS } from "@/lib/nav-tabs";
 
@@ -41,13 +40,30 @@ export function TopNav() {
         }}
       >
         {/* Logo */}
-        <Link href="/analyze" className="mr-6 flex flex-shrink-0 items-center gap-2.5">
-          <div
-            className="flex h-8 w-8 items-center justify-center rounded-xl"
-            style={{ background: "var(--crimson-700)" }}
-          >
-            <ShieldCheck size={16} className="text-white" />
-          </div>
+        <Link href="/analyze" className="mr-6 flex flex-shrink-0 items-center gap-2">
+          <svg viewBox="62 6 116 110" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+            {/* Antenna */}
+            <line x1="120" y1="20" x2="120" y2="44" stroke="#A82020" strokeWidth="2" strokeLinecap="round"/>
+            <circle cx="120" cy="14" r="6" fill="#A82020"/>
+            <circle cx="120" cy="12" r="2" fill="#FAE8E8" opacity="0.6"/>
+            {/* Head */}
+            <rect x="80" y="44" width="80" height="68" rx="18" fill="#A82020"/>
+            {/* Ear nubs */}
+            <rect x="66" y="62" width="14" height="24" rx="7" fill="#A82020"/>
+            <rect x="160" y="62" width="14" height="24" rx="7" fill="#8B1A1A"/>
+            {/* Eyes */}
+            <rect x="92" y="56" width="20" height="20" rx="6" fill="#FAF6EF"/>
+            <rect x="128" y="56" width="20" height="20" rx="6" fill="#FAF6EF"/>
+            <circle cx="102" cy="66" r="5.5" fill="#6B1414"/>
+            <circle cx="138" cy="66" r="5.5" fill="#6B1414"/>
+            <circle cx="104" cy="63" r="2" fill="white"/>
+            <circle cx="140" cy="63" r="2" fill="white"/>
+            {/* Mouth */}
+            <rect x="96" y="88" width="48" height="11" rx="5.5" fill="#8B1A1A"/>
+            <rect x="101" y="92" width="10" height="3" rx="1.5" fill="#FAE8E8" opacity="0.55"/>
+            <rect x="115" y="92" width="14" height="3" rx="1.5" fill="#FAE8E8" opacity="0.55"/>
+            <rect x="133" y="92" width="7" height="3" rx="1.5" fill="#FAE8E8" opacity="0.55"/>
+          </svg>
           <span className="hidden text-sm font-semibold sm:block" style={{ color: "var(--ink-900)" }}>
             SwarmCast
           </span>
