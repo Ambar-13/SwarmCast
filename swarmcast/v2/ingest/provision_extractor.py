@@ -30,7 +30,7 @@ Usage
     from swarmcast.v2.ingest.document_loader import load_document
 
     doc = load_document("eu_ai_act_impact_assessment.pdf")
-    result = extract_provisions(doc, api_key="sk-...", model="gpt-4o")
+    result = extract_provisions(doc, api_key="YOUR_OPENAI_API_KEY", model="gpt-4o")
 
     print(result.penalty_type.value)       # "civil"
     print(result.penalty_type.confidence)  # 0.95

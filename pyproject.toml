@@ -1,5 +1,5 @@
 [project]
-name = "policylab"
+name = "swarmcast"
 version = "1.0.0"
 description = "SwarmCast — multi-agent behavioral simulation with LLM swarm intelligence for macro scenario analysis"
 authors = [{ name = "Ambar" }]
@@ -22,4 +22,4 @@ dependencies = [
 dev = ["pytest", "ruff"]
 
 [project.scripts]
-policylab = "policylab.cli:main"
+swarmcast = "swarmcast.cli:main"

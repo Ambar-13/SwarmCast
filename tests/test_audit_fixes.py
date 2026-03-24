@@ -2193,7 +2193,7 @@ class TestCounterfactualIsolation:
 
     def test_counterfactual_uses_null_policy_not_rejected(self):
         """The counterfactual must use a genuinely null policy, not a 'rejected' version."""
-        with open("/Users/ambar/Downloads/policylab_m3/swarmcast/features/stress_tester.py") as f:
+        with open("/Users/ambar/Downloads/SwarmCast/swarmcast/features/stress_tester.py") as f:
             src = f.read()
         # Old contaminated pattern must be gone
         assert 'premise.replace("IS NOW LAW"' not in src, (
@@ -2209,7 +2209,7 @@ class TestCounterfactualIsolation:
 
     def test_counterfactual_baseline_larger_sample(self):
         """Baseline must run n//3 (not n//5) for statistical stability."""
-        with open("/Users/ambar/Downloads/policylab_m3/swarmcast/features/stress_tester.py") as f:
+        with open("/Users/ambar/Downloads/SwarmCast/swarmcast/features/stress_tester.py") as f:
             src = f.read()
         assert "n_ensemble // 3" in src or "self.n_ensemble // 3" in src, (
             "Baseline sample must be n//3 for stability (n//5 was too small)"

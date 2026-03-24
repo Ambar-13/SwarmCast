@@ -12,10 +12,10 @@ Usage
     from swarmcast.v2.ingest.pipeline import ingest
 
     # From a file (PDF, txt, md, docx)
-    result = ingest("eu_ai_act_impact_assessment.pdf", api_key="sk-...")
+    result = ingest("eu_ai_act_impact_assessment.pdf", api_key="YOUR_OPENAI_API_KEY")
 
     # From a string (pasted text, e.g. from a UI)
-    result = ingest_text(bill_text, name="Custom bill", api_key="sk-...")
+    result = ingest_text(bill_text, name="Custom bill", api_key="YOUR_OPENAI_API_KEY")
 
     # Use the result directly
     from swarmcast.v2.simulation.hybrid_loop import HybridSimConfig, run_hybrid_simulation

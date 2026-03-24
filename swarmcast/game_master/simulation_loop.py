@@ -608,7 +608,20 @@ def run_simulation_loop(
                 "enforcement_events": enforcement_events,
             })
 
-        # Layer 2: Passive burden per severity (see indicator_dynamics.py). Set to 0.0 in RIGOROUS_BASELINE. Enable in sensitivity configs.
+        # Layer 2: Passive burden per severity — each enacted policy adds a small
+        # ongoing burden each round proportional to its severity.
+        # Coefficient is 0.0 in RIGOROUS_BASELINE; non-zero in sensitivity configs.
+        passive_burden_coeff = getattr(_dyn_cfg, "passive_burden_per_severity", 0.0)
+        passive_burden = sum(
+            p.effective_severity() * passive_burden_coeff
+            for p in world_state.active_policies.values()
+            if p.status == "enacted"
+        )
+        if passive_burden > 0:
+            world_state.economic_indicators["regulatory_burden"] = min(
+                100.0,
+                world_state.economic_indicators.get("regulatory_burden", 0.0) + passive_burden,
+            )
 
         # Layer 3 (ASSUMED, disabled): Ongoing innovation drain removed from default — the coefficient was reverse-engineered to produce specific outcomes. Available in SENSITIVITY_ASSUMED config in indicator_dynamics.py.
 
