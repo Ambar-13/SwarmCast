@@ -1210,7 +1210,7 @@ class TestPreExistingBugFixes:
 
     def test_hybrid_loop_does_not_directly_increment_relocated(self):
         """The direct `stocks.companies.relocated += len(departing)` must be absent."""
-        with open("policylab/v2/simulation/hybrid_loop.py") as f:
+        with open("swarmcast/v2/simulation/hybrid_loop.py") as f:
             src = f.read()
         # Check the direct increment is not present (it was replaced by a comment)
         assert "stocks.companies.relocated += len(departing)" not in src, (
@@ -1247,7 +1247,7 @@ class TestPreExistingBugFixes:
     def test_enforcement_frac_uses_n_population_denominator(self):
         """observed_enforcement_frac must divide by n_population, not len(llm_agents or [1])."""
         # Verify at the source level that the correct denominator is used
-        with open("policylab/v2/simulation/hybrid_loop.py") as f:
+        with open("swarmcast/v2/simulation/hybrid_loop.py") as f:
             src = f.read()
         # Check only non-comment lines for the broken denominator pattern
         bad_lines = [l.strip() for l in src.splitlines()

@@ -2069,7 +2069,7 @@ class TestRemainingAgent3Fixes:
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             # Build a minimal stress tester with SENSITIVITY_ASSUMED
-            st = object.__new__(__import__('policylab.features.stress_tester', fromlist=['StressTester']).StressTester)
+            st = object.__new__(__import__('swarmcast.features.stress_tester', fromlist=['StressTester']).StressTester)
             st.model = None; st.embedder = None
             st.n_ensemble = 1; st.num_rounds = 8; st.output_dir = "/tmp"
             st.revalidate = False
@@ -2193,7 +2193,7 @@ class TestCounterfactualIsolation:
 
     def test_counterfactual_uses_null_policy_not_rejected(self):
         """The counterfactual must use a genuinely null policy, not a 'rejected' version."""
-        with open("/home/claude/ai-governance-merged/policylab/features/stress_tester.py") as f:
+        with open("/Users/ambar/Downloads/policylab_m3/swarmcast/features/stress_tester.py") as f:
             src = f.read()
         # Old contaminated pattern must be gone
         assert 'premise.replace("IS NOW LAW"' not in src, (
@@ -2209,7 +2209,7 @@ class TestCounterfactualIsolation:
 
     def test_counterfactual_baseline_larger_sample(self):
         """Baseline must run n//3 (not n//5) for statistical stability."""
-        with open("/home/claude/ai-governance-merged/policylab/features/stress_tester.py") as f:
+        with open("/Users/ambar/Downloads/policylab_m3/swarmcast/features/stress_tester.py") as f:
             src = f.read()
         assert "n_ensemble // 3" in src or "self.n_ensemble // 3" in src, (
             "Baseline sample must be n//3 for stability (n//5 was too small)"
@@ -2435,7 +2435,7 @@ class TestAuditResponseFindings:
 
     def test_NEW2_severity_scoring_docstring_says_ASSUMED(self):
         """Severity scoring coefficients must be explicitly tagged [ASSUMED]."""
-        with open("policylab/game_master/resolution_config.py") as f:
+        with open("swarmcast/game_master/resolution_config.py") as f:
             src = f.read()
         assert "severity_req_weight" in src
         # Find the docstring for severity_req_weight and check it says ASSUMED
@@ -2478,7 +2478,7 @@ class TestAuditResponseFindings:
         This is a known limitation of v1, not a bug to fix there.
         Documented in disclaimers.py: B1 applies to v1 only.
         """
-        with open("policylab/game_master/indicator_dynamics.py") as f:
+        with open("swarmcast/game_master/indicator_dynamics.py") as f:
             src = f.read()
         # v1 has investment→innovation but not innovation→investment
         assert "investment_to_innovation" in src, "v1 has the one-way coupling"
