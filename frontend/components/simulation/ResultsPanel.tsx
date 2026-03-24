@@ -5,6 +5,7 @@ import { PopulationSummaryBar } from "@/components/simulation/PopulationSummaryB
 import { RoundSummaryChart } from "@/components/simulation/RoundSummaryChart";
 import { SMMTable } from "@/components/simulation/SMMTable";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
+import { ScrambleText } from "@/components/ui/ScrambleText";
 import { formatDurationMs, formatPct } from "@/lib/format";
 import type { ConfidenceBand, SimulateResponse } from "@/lib/types";
 
@@ -19,7 +20,10 @@ export function ResultsPanel({ result, comparisonResult, complianceBands }: Prop
   const stocks = result.final_stocks;
 
   return (
-    <div className="space-y-4">
+    <div
+      className="space-y-4"
+      style={{ animation: "revealUp 480ms cubic-bezier(0.23, 1, 0.32, 1) both" }}
+    >
       {/* ── Verdict header ──────────────────────────────────────── */}
       <div
         className="card-raised overflow-hidden p-6 md:p-8"
@@ -32,7 +36,12 @@ export function ResultsPanel({ result, comparisonResult, complianceBands }: Prop
               className="text-3xl font-bold leading-tight"
               style={{ color: "var(--ink-900)" }}
             >
-              {result.policy_name}
+              <ScrambleText
+                text={result.policy_name}
+                animKey={result.policy_name}
+                duration={700}
+                delay={120}
+              />
             </h2>
             <p
               className="text-base leading-7"
@@ -117,6 +126,17 @@ export function ResultsPanel({ result, comparisonResult, complianceBands }: Prop
         everLobbyedRate={pop.ever_lobbied_rate ?? 0}
       />
 
+      {/* ── Network + Jurisdiction ──────────────────────────────── */}
+      <div className="grid gap-4 xl:grid-cols-[2fr_3fr]">
+        <NetworkStatsPanel
+          networkStatistics={result.network_statistics}
+          networkHubs={result.network_hubs}
+        />
+        <JurisdictionFlowDiagram
+          jurisdictionSummary={result.jurisdiction_summary}
+        />
+      </div>
+
       {/* ── Chart + SMM table ───────────────────────────────────── */}
       <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
         <div className="card-warm p-5 md:p-6">
@@ -131,17 +151,6 @@ export function ResultsPanel({ result, comparisonResult, complianceBands }: Prop
             distanceToGdpr={result.smm_distance_to_gdpr}
           />
         </div>
-      </div>
-
-      {/* ── Network + Jurisdiction ──────────────────────────────── */}
-      <div className="grid gap-4 xl:grid-cols-[2fr_3fr]">
-        <NetworkStatsPanel
-          networkStatistics={result.network_statistics}
-          networkHubs={result.network_hubs}
-        />
-        <JurisdictionFlowDiagram
-          jurisdictionSummary={result.jurisdiction_summary}
-        />
       </div>
 
       {/* ── Run metadata footer ─────────────────────────────────── */}

@@ -10,13 +10,32 @@ import { PresetSelector } from "@/components/policy/PresetSelector";
 import { simulate } from "@/lib/api-client";
 import { useAnalyzeStore } from "@/lib/store";
 import type { PresetPolicy } from "@/lib/types";
-import { BarChart2, ArrowRight } from "lucide-react";
+import { ArrowRight, Play, GitCompareArrows } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ScrambleText } from "@/components/ui/ScrambleText";
+import { AgentNetworkIdle } from "@/components/ui/AgentNetworkIdle";
+import { useCompareStore, makeId } from "@/lib/store";
 
 export default function AnalyzePage() {
   const store = useAnalyzeStore();
+  const compareStore = useCompareStore();
+  const router = useRouter();
 
   function handlePreset(preset: PresetPolicy) {
     store.setFromSpec(preset.spec);
+  }
+
+  function handleAddToCompare() {
+    if (!store.result) return;
+    compareStore.addSlotWithResult({
+      id: makeId(),
+      policyName: store.policyName,
+      policyDescription: store.policyDescription,
+      policySeverity: store.policySeverity,
+      simConfig: store.simConfig,
+      result: store.result,
+    });
+    router.push("/compare");
   }
 
   async function handleRun() {
@@ -39,21 +58,16 @@ export default function AnalyzePage() {
     <AppShell>
       <div className="mx-auto max-w-[1560px] px-4 py-6 lg:px-8">
         {/* Page header */}
-        <div className="mb-6 flex items-center gap-3">
-          <div
-            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl"
-            style={{ background: "var(--cream-200)", border: "1px solid var(--border-warm)" }}
+        <div className="mb-6">
+          <h1
+            className="text-3xl font-bold tracking-tight"
+            style={{ color: "var(--ink-900)", letterSpacing: "-0.03em" }}
           >
-            <BarChart2 size={17} style={{ color: "var(--ink-500)" }} />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold" style={{ color: "var(--ink-900)" }}>
-              Policy Simulator
-            </h1>
-            <p className="text-sm" style={{ color: "var(--ink-400)" }}>
-              Configure a bill and launch a population simulation
-            </p>
-          </div>
+            <ScrambleText text="Policy Simulator" duration={800} delay={80} />
+          </h1>
+          <p className="mt-1.5 text-sm" style={{ color: "var(--ink-400)" }}>
+            Configure a regulation and run a population-level ABM simulation
+          </p>
         </div>
 
         {/* Two-panel layout */}
@@ -105,6 +119,16 @@ export default function AnalyzePage() {
               <ArrowRight size={16} />
             </button>
 
+            {store.result && (
+              <button
+                onClick={handleAddToCompare}
+                className="btn-secondary w-full py-2.5"
+              >
+                <GitCompareArrows size={15} />
+                Add to Compare
+              </button>
+            )}
+
             {store.error && (
               <div
                 className="rounded-xl border px-3 py-2.5 text-sm"
@@ -133,42 +157,51 @@ export default function AnalyzePage() {
             )}
 
             {!store.isLoading && !store.result && !store.error && (
-              <div className="card-warm flex min-h-[500px] flex-col items-center justify-center gap-6 p-8 text-center">
-                <div
-                  className="flex h-16 w-16 items-center justify-center rounded-2xl"
-                  style={{
-                    background:  "var(--cream-200)",
-                    border:      "1px solid var(--border-warm)",
-                  }}
-                >
-                  <BarChart2 size={28} style={{ color: "var(--ink-400)" }} />
+              <div
+                className="card-warm flex min-h-[520px] flex-col items-center justify-center gap-5 overflow-hidden p-8 text-center"
+                style={{ animation: "slideUpFade 400ms ease both" }}
+              >
+                {/* Animated agent network — main visual */}
+                <div style={{ animation: "floatSlow 5s ease-in-out infinite" }}>
+                  <AgentNetworkIdle />
                 </div>
+
+                {/* Text */}
                 <div className="space-y-2">
                   <h3
-                    className="text-xl font-semibold"
-                    style={{ color: "var(--ink-900)" }}
+                    className="text-2xl font-bold"
+                    style={{ color: "var(--ink-900)", letterSpacing: "-0.03em" }}
                   >
                     Ready to simulate
                   </h3>
                   <p
-                    className="max-w-sm text-sm leading-6"
+                    className="mx-auto max-w-[300px] text-sm leading-6"
                     style={{ color: "var(--ink-400)" }}
                   >
-                    Configure parameters on the left and click{" "}
-                    <strong style={{ color: "var(--ink-700)" }}>Run simulation</strong> to see
-                    compliance trajectories, relocation pressure, and calibration moments.
+                    Configure a regulation on the left, then run the simulation to see
+                    how{" "}
+                    <span style={{ color: "var(--ink-700)", fontWeight: 500 }}>
+                      {store.simConfig.n_population.toLocaleString()} agents
+                    </span>{" "}
+                    respond across {store.simConfig.num_rounds} decision rounds.
                   </p>
                 </div>
-                <div className="grid w-full max-w-xs grid-cols-3 gap-2">
+
+                {/* Mini params preview */}
+                <div className="flex gap-3">
                   {[
                     ["Population", store.simConfig.n_population.toLocaleString()],
                     ["Rounds",     String(store.simConfig.num_rounds)],
                     ["Severity",   store.policySeverity.toFixed(1)],
                   ].map(([label, value]) => (
-                    <div key={label} className="card-warm px-3 py-2.5 text-center">
+                    <div
+                      key={label}
+                      className="rounded-xl border px-4 py-2.5 text-center"
+                      style={{ background: "var(--cream-200)", borderColor: "var(--border-warm)" }}
+                    >
                       <p className="kicker text-[10px]">{label}</p>
                       <p
-                        className="metric-num mt-1 text-lg font-bold"
+                        className="metric-num mt-1 text-base font-bold"
                         style={{ color: "var(--ink-900)" }}
                       >
                         {value}
@@ -176,6 +209,12 @@ export default function AnalyzePage() {
                     </div>
                   ))}
                 </div>
+
+                {/* CTA arrow pointing left toward run button */}
+                <p className="flex items-center gap-1.5 text-xs" style={{ color: "var(--ink-300)" }}>
+                  <Play size={11} style={{ color: "var(--crimson-700)" }} />
+                  <span>Click <strong style={{ color: "var(--ink-500)" }}>Run simulation</strong> to begin</span>
+                </p>
               </div>
             )}
           </section>

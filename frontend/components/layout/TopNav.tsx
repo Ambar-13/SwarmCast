@@ -25,8 +25,20 @@ export function TopNav() {
   return (
     <>
       <header
-        className="sticky top-0 z-40 flex h-14 items-center border-b bg-[var(--cream-50)] px-4 lg:px-8"
-        style={{ borderColor: "var(--border-warm)" }}
+        className="sticky top-0 z-40 flex h-14 items-center border-b px-4 lg:px-8"
+        style={{
+          borderColor: "var(--border-warm)",
+          /* Animated gradient mesh — very subtle warm motion behind nav */
+          background: `
+            radial-gradient(ellipse 40% 80% at 20% 50%, rgba(250,240,220,0.9) 0%, transparent 70%),
+            radial-gradient(ellipse 35% 70% at 75% 30%, rgba(253,250,246,0.95) 0%, transparent 70%),
+            radial-gradient(ellipse 50% 100% at 50% 100%, rgba(244,237,224,0.6) 0%, transparent 70%),
+            var(--cream-50)
+          `,
+          backgroundSize: "200% 200%",
+          animation: "meshDrift 12s ease-in-out infinite",
+          backdropFilter: "blur(0px)",
+        }}
       >
         {/* Logo */}
         <Link href="/analyze" className="mr-6 flex flex-shrink-0 items-center gap-2.5">

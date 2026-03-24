@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
+import { TiltCard } from "@/components/ui/TiltCard";
 import { formatDelta, formatPct } from "@/lib/format";
 
 interface StatCardProps {
@@ -16,8 +17,9 @@ function StatCard({ label, value, formatter, note, delta, index }: StatCardProps
   const positive = delta !== null && delta !== undefined && delta >= 0;
 
   return (
-    <div
+    <TiltCard
       className="card-warm p-4"
+      maxTilt={5}
       style={{
         animation:      "slideUpFade 380ms ease both",
         animationDelay: `${index * 55}ms`,
@@ -47,7 +49,7 @@ function StatCard({ label, value, formatter, note, delta, index }: StatCardProps
       <p className="mt-2 text-sm leading-5" style={{ color: "var(--ink-400)" }}>
         {note}
       </p>
-    </div>
+    </TiltCard>
   );
 }
 
