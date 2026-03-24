@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 def _load_presets() -> list[PresetPolicy]:
-    from policylab.v2.policy.parser import (
+    from swarmcast.v2.policy.parser import (
         california_sb53,
         eu_ai_act_gpai,
         ny_raise_act,

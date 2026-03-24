@@ -49,7 +49,7 @@ export function TopNav() {
             <ShieldCheck size={16} className="text-white" />
           </div>
           <span className="hidden text-sm font-semibold sm:block" style={{ color: "var(--ink-900)" }}>
-            Swarmcast
+            SwarmCast
           </span>
         </Link>
 

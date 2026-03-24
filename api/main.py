@@ -1,4 +1,4 @@
-"""Swarmcast FastAPI application.
+"""SwarmCast FastAPI application.
 
 Start with:
     cd api && uvicorn main:app --reload --port 8000
@@ -54,7 +54,7 @@ from api.routes import presets, simulate, compare, inject, evidence_pack
 async def lifespan(app: FastAPI):
     # Warm up: load preset policies at startup so first request is fast
     try:
-        from policylab.v2.policy.parser import (
+        from swarmcast.v2.policy.parser import (
             california_sb53, eu_ai_act_gpai, ny_raise_act, hypothetical_compute_ban
         )
         _ = california_sb53(), eu_ai_act_gpai(), ny_raise_act(), hypothetical_compute_ban(1e26)
@@ -64,7 +64,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Swarmcast API",
+    title="SwarmCast API",
     version="1.0.0",
     lifespan=lifespan,
     default_response_class=NumpyJSONResponse,

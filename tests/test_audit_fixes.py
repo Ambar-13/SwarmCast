@@ -73,18 +73,18 @@ _lm.LanguageModel = _LM
 # Imports under test
 # ---------------------------------------------------------------------------
 
-from policylab.components.governance_state import GovernanceWorldState, Policy, WorldStateComponent
-from policylab.agents.resource_status import ResourceStatusComponent
-from policylab.components.actions import (
+from swarmcast.components.governance_state import GovernanceWorldState, Policy, WorldStateComponent
+from swarmcast.agents.resource_status import ResourceStatusComponent
+from swarmcast.components.actions import (
     ActionType, GovernanceAction,
     parse_action, classify_with_keywords, can_afford_action, ACTION_COSTS,
 )
-from policylab.game_master.resolution_config import DEFAULT_CONFIG
-from policylab.game_master.resolution_engine import ResolutionEngine
-from policylab.features.ensemble import EnsembleRunner
-from policylab.validation.backtester import MIN_HIT_RATE, _infer_actor_role
-from policylab.features.blind_spot_finder import ROUNDS_MAP, CAPABILITY_MAP, ScenarioVariation
-from policylab.features.war_game import IncidentTemplate
+from swarmcast.game_master.resolution_config import DEFAULT_CONFIG
+from swarmcast.game_master.resolution_engine import ResolutionEngine
+from swarmcast.features.ensemble import EnsembleRunner
+from swarmcast.validation.backtester import MIN_HIT_RATE, _infer_actor_role
+from swarmcast.features.blind_spot_finder import ROUNDS_MAP, CAPABILITY_MAP, ScenarioVariation
+from swarmcast.features.war_game import IncidentTemplate
 
 
 # ---------------------------------------------------------------------------
@@ -171,7 +171,7 @@ class TestExplicitPolicyStance:
     def test_simulation_loop_does_not_infer_stance(self):
         """The old stance-inference block (iterating all policies on COMPLY/EVADE/etc)
         must be absent. Only explicit PROPOSE_POLICY and targeted LOBBY may set stance."""
-        with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "policylab", "game_master", "simulation_loop.py")) as f:
+        with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "swarmcast", "game_master", "simulation_loop.py")) as f:
             src = f.read()
         # The specific bad pattern was: iterating all active policies on every action type
         bad_pattern = "for pid in world_state.active_policies:"
@@ -191,7 +191,7 @@ class TestExplicitPolicyStance:
 class TestTwoPassResolution:
 
     def test_resource_snapshot_in_simulation_loop(self):
-        with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "policylab", "game_master", "simulation_loop.py")) as f:
+        with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "swarmcast", "game_master", "simulation_loop.py")) as f:
             src = f.read()
         assert "resource_snapshot" in src, \
             "resource_snapshot not found — two-pass resolution not implemented"
@@ -358,7 +358,7 @@ class TestBacktester:
         assert _infer_actor_role("Senator Williams") == "government"
 
     def test_eu_ai_act_company_outcomes_have_attribution(self):
-        from policylab.validation.backtester import EU_AI_ACT
+        from swarmcast.validation.backtester import EU_AI_ACT
         company_outcomes = [o for o in EU_AI_ACT.known_outcomes
                             if o.category == "company_response"]
         for o in company_outcomes:
@@ -384,7 +384,7 @@ class TestBlindSpotDimensions:
         assert CAPABILITY_MAP["high"] > 1.0
 
     def test_blind_spot_finder_injects_parameters(self):
-        with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "policylab", "features", "blind_spot_finder.py")) as f:
+        with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "swarmcast", "features", "blind_spot_finder.py")) as f:
             src = f.read()
         assert "num_rounds_override=ROUNDS_MAP" in src, \
             "ROUNDS_MAP not passed as num_rounds_override"
@@ -541,7 +541,7 @@ class TestComplianceHelpers:
     def test_resolution_engine_uses_helpers_not_direct_writes(self):
         """Verify resolution_engine no longer writes compliance_tracker directly."""
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        path = os.path.join(base, "policylab", "game_master", "resolution_engine.py")
+        path = os.path.join(base, "swarmcast", "game_master", "resolution_engine.py")
         with open(path) as f:
             src = f.read()
         bad_patterns = [
@@ -645,7 +645,7 @@ class TestPrivateEnforcementConsequences:
     def test_simulation_loop_calls_observe_for_enforcement(self):
         """Enforcement loop must call agents[name].observe() for private delivery."""
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        path = os.path.join(base, "policylab", "game_master", "simulation_loop.py")
+        path = os.path.join(base, "swarmcast", "game_master", "simulation_loop.py")
         with open(path) as f:
             src = f.read()
         assert "agents[agent_name].observe(private_msg)" in src, \
@@ -681,7 +681,7 @@ class TestPrivateEnforcementConsequences:
 class TestEnforcementCapacityExtraction:
 
     def _extract(self, text):
-        from policylab.game_master.severity import extract_enforcement_capacity
+        from swarmcast.game_master.severity import extract_enforcement_capacity
         return extract_enforcement_capacity(text)
 
     def test_extracts_500_person_bureau(self):
@@ -817,25 +817,25 @@ class TestSeverity5Calibration:
 
     def test_enforcement_base_prob_is_in_plausible_range(self):
         """EU DPA data gives ~0.004/sev/quarter as lower bound; 0.08 is upper."""
-        from policylab.game_master.resolution_config import DEFAULT_CONFIG
+        from swarmcast.game_master.resolution_config import DEFAULT_CONFIG
         assert 0.001 <= DEFAULT_CONFIG.enforcement_base_prob_per_severity <= 0.20, (
             f"enforcement_base_prob_per_severity out of range: "
             f"{DEFAULT_CONFIG.enforcement_base_prob_per_severity}"
         )
 
     def test_evasion_detection_bonus_is_reasonable(self):
-        from policylab.game_master.resolution_config import DEFAULT_CONFIG
+        from swarmcast.game_master.resolution_config import DEFAULT_CONFIG
         assert 0.0 <= DEFAULT_CONFIG.severity_evasion_detection_bonus <= 0.30
 
     def test_innovation_penalty_is_reasonable(self):
-        from policylab.game_master.resolution_config import DEFAULT_CONFIG
+        from swarmcast.game_master.resolution_config import DEFAULT_CONFIG
         assert 0.5 <= DEFAULT_CONFIG.enforcement_penalty_innovation_per_severity <= 10.0
 
     def test_all_params_tagged_assumed(self):
         """Every resolution_config parameter must be tagged [ASSUMED] or [DIRECTIONAL]."""
         import os
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        rc_path = os.path.join(base, "policylab", "game_master", "resolution_config.py")
+        rc_path = os.path.join(base, "swarmcast", "game_master", "resolution_config.py")
         with open(rc_path) as f:
             rc_src = f.read()
         count = rc_src.count("[ASSUMED]")
@@ -846,20 +846,20 @@ class TestPassiveRegulatoryBurden:
 
     def test_passive_burden_code_present(self):
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        path = os.path.join(base, "policylab", "game_master", "simulation_loop.py")
+        path = os.path.join(base, "swarmcast", "game_master", "simulation_loop.py")
         with open(path) as f:
             src = f.read()
         assert "passive_burden" in src, "simulation_loop.py must accumulate passive burden"
         assert "policy.effective_severity()" in src, "passive burden must scale with severity"
 
     def test_passive_burden_is_positive_for_sev5(self):
-        from policylab.game_master.resolution_config import DEFAULT_CONFIG
+        from swarmcast.game_master.resolution_config import DEFAULT_CONFIG
         sev = 5.0
         burden = 0.5 * DEFAULT_CONFIG.severity_multiplier(sev, 1.8)
         assert burden > 1.0, f"Severity 5 passive burden/round should be >1.0, got {burden:.3f}"
 
     def test_passive_burden_superlinear_with_severity(self):
-        from policylab.game_master.resolution_config import DEFAULT_CONFIG
+        from swarmcast.game_master.resolution_config import DEFAULT_CONFIG
         cfg = DEFAULT_CONFIG
         b1 = 0.5 * cfg.severity_multiplier(1.0, 1.8)
         b3 = 0.5 * cfg.severity_multiplier(3.0, 1.8)
@@ -869,7 +869,7 @@ class TestPassiveRegulatoryBurden:
 
     def test_8_rounds_of_sev5_burden_is_substantial(self):
         """Over a full 8-round run, passive burden alone should push regulatory_burden significantly."""
-        from policylab.game_master.resolution_config import DEFAULT_CONFIG
+        from swarmcast.game_master.resolution_config import DEFAULT_CONFIG
         per_round = 0.5 * DEFAULT_CONFIG.severity_multiplier(5.0, 1.8)
         total_8_rounds = per_round * 8
         assert total_8_rounds >= 10.0, (
@@ -887,7 +887,7 @@ class TestStressTestEnactedPolicy:
     def test_stress_test_builds_enacted_policy(self):
         """The policy created by stress_test() must be enacted from round 0."""
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        path = os.path.join(base, "policylab", "features", "stress_tester.py")
+        path = os.path.join(base, "swarmcast", "features", "stress_tester.py")
         with open(path) as f:
             src = f.read()
         assert 'status="enacted"' in src, (
@@ -900,7 +900,7 @@ class TestStressTestEnactedPolicy:
     def test_premise_says_law_not_proposed(self):
         """Agents must be told the policy is already law, not just proposed."""
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        path = os.path.join(base, "policylab", "features", "stress_tester.py")
+        path = os.path.join(base, "swarmcast", "features", "stress_tester.py")
         with open(path) as f:
             src = f.read()
         assert "IS NOW LAW" in src or "ENACTED" in src or "been ENACTED" in src, (
@@ -923,19 +923,19 @@ class TestRelocationCalibration:
     Corrected to verify conservative defaults and proper epistemic labeling."""
 
     def test_relocation_investment_cost_is_conservative(self):
-        from policylab.game_master.resolution_config import DEFAULT_CONFIG
+        from swarmcast.game_master.resolution_config import DEFAULT_CONFIG
         assert 5.0 <= DEFAULT_CONFIG.relocation_investment_cost <= 20.0, (
             f"relocation_investment_cost should be conservative [5,20], "
             f"got {DEFAULT_CONFIG.relocation_investment_cost}"
         )
 
     def test_relocation_innovation_cost_is_conservative(self):
-        from policylab.game_master.resolution_config import DEFAULT_CONFIG
+        from swarmcast.game_master.resolution_config import DEFAULT_CONFIG
         assert 3.0 <= DEFAULT_CONFIG.relocation_innovation_cost <= 15.0
 
     def test_ongoing_drain_disabled_by_default(self):
         """The ongoing drain was calibration-to-desired-output. Must be 0."""
-        from policylab.game_master.resolution_config import DEFAULT_CONFIG
+        from swarmcast.game_master.resolution_config import DEFAULT_CONFIG
         assert DEFAULT_CONFIG.relocation_ongoing_innovation_drain == 0.0, (
             "relocation_ongoing_innovation_drain must be 0.0 (disabled). "
             "Previously 3.0 to force near-zero innovation -- that was bias."
@@ -953,27 +953,27 @@ class TestRelocationCalibration:
         assert ws.economic_indicators["ai_investment_index"] < 100.0
 
     def test_conservative_config_has_linear_exponents(self):
-        from policylab.game_master.resolution_config import CONSERVATIVE_CONFIG
+        from swarmcast.game_master.resolution_config import CONSERVATIVE_CONFIG
         assert CONSERVATIVE_CONFIG.severity_compliance_exponent == 1.0
         assert CONSERVATIVE_CONFIG.severity_relocation_exponent == 1.0
         assert CONSERVATIVE_CONFIG.severity_innovation_exponent == 1.0
 
     def test_configs_differ_for_sensitivity(self):
         """Default and conservative must differ so sensitivity analysis works."""
-        from policylab.game_master.resolution_config import DEFAULT_CONFIG, CONSERVATIVE_CONFIG
+        from swarmcast.game_master.resolution_config import DEFAULT_CONFIG, CONSERVATIVE_CONFIG
         assert DEFAULT_CONFIG.relocation_investment_cost != CONSERVATIVE_CONFIG.relocation_investment_cost
 
 
 class TestIndicatorDynamics:
 
     def test_module_exists(self):
-        from policylab.game_master.indicator_dynamics import (
+        from swarmcast.game_master.indicator_dynamics import (
             apply_indicator_feedback, convergence_check, is_system_converged,
             DEFAULT_DYNAMICS, DynamicsConfig,
         )
 
     def test_high_investment_boosts_innovation(self):
-        from policylab.game_master.indicator_dynamics import apply_indicator_feedback, DynamicsConfig
+        from swarmcast.game_master.indicator_dynamics import apply_indicator_feedback, DynamicsConfig
         ws = GovernanceWorldState()
         ws.economic_indicators["ai_investment_index"] = 90.0   # well above 50
         ws.economic_indicators["innovation_rate"] = 50.0
@@ -987,7 +987,7 @@ class TestIndicatorDynamics:
         )
 
     def test_high_burden_reduces_investment(self):
-        from policylab.game_master.indicator_dynamics import apply_indicator_feedback, DynamicsConfig
+        from swarmcast.game_master.indicator_dynamics import apply_indicator_feedback, DynamicsConfig
         ws = GovernanceWorldState()
         ws.economic_indicators["ai_investment_index"] = 50.0
         ws.economic_indicators["innovation_rate"] = 50.0
@@ -1003,7 +1003,7 @@ class TestIndicatorDynamics:
     def test_tipping_point_fires_at_low_investment(self):
         """Tipping points only fire when AssumedDynamicsConfig threshold is set.
         They are disabled by default (RIGOROUS_BASELINE) — this is correct design."""
-        from policylab.game_master.indicator_dynamics import (
+        from swarmcast.game_master.indicator_dynamics import (
             apply_indicator_feedback, DynamicsConfig, RIGOROUS_BASELINE,
             GroundedDynamicsConfig, DirectionalDynamicsConfig, AssumedDynamicsConfig
         )
@@ -1039,7 +1039,7 @@ class TestIndicatorDynamics:
 
     def test_tipping_point_amplifies_decline(self):
         """Cascade multiplier in AssumedDynamicsConfig amplifies adverse dynamics."""
-        from policylab.game_master.indicator_dynamics import (
+        from swarmcast.game_master.indicator_dynamics import (
             apply_indicator_feedback, DynamicsConfig,
             GroundedDynamicsConfig, DirectionalDynamicsConfig, AssumedDynamicsConfig
         )
@@ -1076,7 +1076,7 @@ class TestIndicatorDynamics:
         )
 
     def test_convergence_detection(self):
-        from policylab.game_master.indicator_dynamics import convergence_check, is_system_converged
+        from swarmcast.game_master.indicator_dynamics import convergence_check, is_system_converged
         stable = [
             {"innovation_rate": 42.0, "public_trust": 35.0},
             {"innovation_rate": 42.1, "public_trust": 35.1},
@@ -1086,7 +1086,7 @@ class TestIndicatorDynamics:
         assert is_system_converged(conv), "Stable indicators should be detected as converged"
 
     def test_no_convergence_when_volatile(self):
-        from policylab.game_master.indicator_dynamics import convergence_check, is_system_converged
+        from swarmcast.game_master.indicator_dynamics import convergence_check, is_system_converged
         volatile = [
             {"innovation_rate": 80.0},
             {"innovation_rate": 20.0},
@@ -1096,7 +1096,7 @@ class TestIndicatorDynamics:
         assert not is_system_converged(conv), "Volatile indicators should not be converged"
 
     def test_schumpeterian_concentration_effect(self):
-        from policylab.game_master.indicator_dynamics import apply_indicator_feedback, DynamicsConfig
+        from swarmcast.game_master.indicator_dynamics import apply_indicator_feedback, DynamicsConfig
         cfg = DynamicsConfig()
 
         def innov_after_concentration(con_val):
@@ -1125,14 +1125,14 @@ class TestEconomyCoupledRegen:
 
     def test_regen_signature_accepts_world_state(self):
         import inspect
-        from policylab.game_master.simulation_loop import _regenerate_resources
+        from swarmcast.game_master.simulation_loop import _regenerate_resources
         sig = inspect.signature(_regenerate_resources)
         assert "world_state" in sig.parameters, (
             "_regenerate_resources must accept world_state parameter"
         )
 
     def test_company_regen_lower_in_collapsed_economy(self):
-        from policylab.game_master.simulation_loop import _regenerate_resources
+        from swarmcast.game_master.simulation_loop import _regenerate_resources
 
         resources_good = {"lobbying_budget": 50.0}
         resources_bad = {"lobbying_budget": 50.0}
@@ -1250,7 +1250,7 @@ class TestStructuralUncertainty:
 
     def test_stats_include_tipping_point_rates(self):
         """After a run with tipping events, stats must include tipping_point_rates."""
-        from policylab.features.ensemble import EnsembleReport
+        from swarmcast.features.ensemble import EnsembleReport
         # Build a synthetic run with a tipping point message
         run_data = [{
             "results": [],
@@ -1280,8 +1280,8 @@ class TestCounterfactualBaseline:
 
     def test_stress_test_report_has_baseline_field(self):
         """StressTestReport must accept and store baseline_ensemble."""
-        from policylab.features.stress_tester import StressTestReport
-        from policylab.features.ensemble import EnsembleReport
+        from swarmcast.features.stress_tester import StressTestReport
+        from swarmcast.features.ensemble import EnsembleReport
         import inspect
         sig = inspect.signature(StressTestReport.__init__)
         assert "baseline_ensemble" in sig.parameters, (
@@ -1290,8 +1290,8 @@ class TestCounterfactualBaseline:
 
     def test_counterfactual_delta_computed_correctly(self):
         """_counterfactual_delta must return policy - baseline."""
-        from policylab.features.stress_tester import StressTestReport
-        from policylab.features.ensemble import EnsembleReport
+        from swarmcast.features.stress_tester import StressTestReport
+        from swarmcast.features.ensemble import EnsembleReport
 
         policy = Policy("test", "Test", "desc", [], [], [], status="enacted")
 
@@ -1334,7 +1334,7 @@ class TestCounterfactualBaseline:
     def test_simulation_loop_returns_tipping_and_convergence(self):
         """run_simulation_loop return dict must include tipping and convergence keys."""
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        path = os.path.join(base, "policylab", "game_master", "simulation_loop.py")
+        path = os.path.join(base, "swarmcast", "game_master", "simulation_loop.py")
         with open(path) as f:
             src = f.read()
         assert "tipping_points_fired" in src, "Return dict must include tipping_points_fired"
@@ -1350,14 +1350,14 @@ class TestCounterfactualBaseline:
 class TestCalibrationModule:
 
     def test_calibration_module_exists(self):
-        from policylab.game_master.calibration import (
+        from swarmcast.game_master.calibration import (
             GroundedCoefficient, GROUNDED_COEFFICIENTS,
             BURDEN_TO_INVESTMENT, RD_TO_INNOVATION,
             SCHUMPETERIAN_PEAK, COALITION_BONUS,
         )
 
     def test_burden_to_investment_is_negative(self):
-        from policylab.game_master.calibration import BURDEN_TO_INVESTMENT
+        from swarmcast.game_master.calibration import BURDEN_TO_INVESTMENT
         assert BURDEN_TO_INVESTMENT.value < 0, (
             "burden→investment must be negative (regulation suppresses investment)"
         )
@@ -1366,7 +1366,7 @@ class TestCalibrationModule:
     def test_burden_to_investment_magnitude_from_oecd(self):
         """OECD FDI gravity ε=−0.197 over 20yr, 60 countries.
         Per-round per-index-point: −0.197 / (100/6) / 4 ≈ −0.00295"""
-        from policylab.game_master.calibration import BURDEN_TO_INVESTMENT
+        from swarmcast.game_master.calibration import BURDEN_TO_INVESTMENT
         expected = -0.197 / (100/6) / 4
         assert abs(BURDEN_TO_INVESTMENT.value - expected) < 1e-5, (
             f"burden_to_investment should be {expected:.6f}, "
@@ -1374,20 +1374,20 @@ class TestCalibrationModule:
         )
 
     def test_burden_to_investment_ci_covers_value(self):
-        from policylab.game_master.calibration import BURDEN_TO_INVESTMENT
+        from swarmcast.game_master.calibration import BURDEN_TO_INVESTMENT
         assert BURDEN_TO_INVESTMENT.ci_low <= BURDEN_TO_INVESTMENT.value <= BURDEN_TO_INVESTMENT.ci_high or                BURDEN_TO_INVESTMENT.ci_high <= BURDEN_TO_INVESTMENT.value <= BURDEN_TO_INVESTMENT.ci_low, (
             "CI bounds must straddle the central estimate"
         )
 
     def test_rd_to_innovation_is_positive(self):
-        from policylab.game_master.calibration import RD_TO_INNOVATION
+        from swarmcast.game_master.calibration import RD_TO_INNOVATION
         assert RD_TO_INNOVATION.value > 0
         assert RD_TO_INNOVATION.status == "GROUNDED"
 
     def test_rd_to_innovation_magnitude_from_ugur(self):
         """Ugur et al. 2016 meta-analysis ε=0.138 (SE=0.012).
         Per-round per-index-point: 0.138 / 4 / 100 = 0.000345"""
-        from policylab.game_master.calibration import RD_TO_INNOVATION
+        from swarmcast.game_master.calibration import RD_TO_INNOVATION
         expected = 0.138 / 4 / 100
         assert abs(RD_TO_INNOVATION.value - expected) < 1e-7, (
             f"rd_to_innovation should be {expected:.7f}, got {RD_TO_INNOVATION.value}"
@@ -1395,7 +1395,7 @@ class TestCalibrationModule:
 
     def test_rd_to_innovation_is_44x_smaller_than_old_value(self):
         """The old 0.015 was ~44× too large relative to Ugur 2016 meta-analysis."""
-        from policylab.game_master.calibration import RD_TO_INNOVATION
+        from swarmcast.game_master.calibration import RD_TO_INNOVATION
         old_value = 0.015
         # Actual ratio is 43.5x (0.015/0.000345), well below old_value/10 = 0.0015
         assert RD_TO_INNOVATION.value < old_value / 10, (
@@ -1405,34 +1405,34 @@ class TestCalibrationModule:
 
     def test_schumpeterian_peak_at_40(self):
         """Aghion et al. 2005 QJE: Lerner peak ≈ 0.4 → 40 on 0-100 scale."""
-        from policylab.game_master.calibration import SCHUMPETERIAN_PEAK
+        from swarmcast.game_master.calibration import SCHUMPETERIAN_PEAK
         assert SCHUMPETERIAN_PEAK.value == 40.0
         assert SCHUMPETERIAN_PEAK.ci_low == 25.0
         assert SCHUMPETERIAN_PEAK.ci_high == 60.0
 
     def test_coalition_bonus_from_baumgartner_leech(self):
         """Baumgartner & Leech (1998): 30-50% advantage → 1.30-1.~44× range."""
-        from policylab.game_master.calibration import COALITION_BONUS
+        from swarmcast.game_master.calibration import COALITION_BONUS
         assert 1.30 <= COALITION_BONUS.value <= 1.50
         assert COALITION_BONUS.ci_low == 1.30
         assert COALITION_BONUS.ci_high == 1.50
 
     def test_tipping_thresholds_flagged_as_assumed(self):
-        from policylab.game_master.calibration import ASSUMED_PARAMETERS
+        from swarmcast.game_master.calibration import ASSUMED_PARAMETERS
         assert "tipping_investment_cascade_threshold" in ASSUMED_PARAMETERS
         assert "tipping_cascade_multiplier" in ASSUMED_PARAMETERS
         for v in ASSUMED_PARAMETERS.values():
             assert "ASSUMED" in v or "assumed" in v.lower() or "no empirical" in v.lower()
 
     def test_relocation_drain_flagged_as_assumed(self):
-        from policylab.game_master.calibration import ASSUMED_PARAMETERS
+        from swarmcast.game_master.calibration import ASSUMED_PARAMETERS
         assert "relocation_ongoing_innovation_drain" in ASSUMED_PARAMETERS
         # Must flag the calibration-to-desired-output problem
         desc = ASSUMED_PARAMETERS["relocation_ongoing_innovation_drain"]
         assert "desired output" in desc.lower() or "calibration" in desc.lower()
 
     def test_calibration_report_prints(self):
-        from policylab.game_master.calibration import calibration_report
+        from swarmcast.game_master.calibration import calibration_report
         report = calibration_report()
         assert "GROUNDED" in report
         assert "DIRECTIONAL" in report
@@ -1449,7 +1449,7 @@ class TestCalibrationModule:
 class TestThreeLayerDynamics:
 
     def test_rigorous_baseline_has_zero_directional(self):
-        from policylab.game_master.indicator_dynamics import RIGOROUS_BASELINE
+        from swarmcast.game_master.indicator_dynamics import RIGOROUS_BASELINE
         d = RIGOROUS_BASELINE.directional
         assert d.trust_to_burden == 0.0
         assert d.burden_to_trust == 0.0
@@ -1457,7 +1457,7 @@ class TestThreeLayerDynamics:
         assert d.passive_burden_per_severity == 0.0
 
     def test_rigorous_baseline_has_disabled_assumed(self):
-        from policylab.game_master.indicator_dynamics import RIGOROUS_BASELINE
+        from swarmcast.game_master.indicator_dynamics import RIGOROUS_BASELINE
         a = RIGOROUS_BASELINE.assumed
         assert a.investment_cascade_threshold == 0.0
         assert a.trust_collapse_threshold == 0.0
@@ -1465,43 +1465,43 @@ class TestThreeLayerDynamics:
         assert a.cascade_multiplier == 1.0
 
     def test_active_layers_rigorous_baseline(self):
-        from policylab.game_master.indicator_dynamics import RIGOROUS_BASELINE
+        from swarmcast.game_master.indicator_dynamics import RIGOROUS_BASELINE
         layers = RIGOROUS_BASELINE.active_layers()
         assert layers == ["GROUNDED"], (
             f"RIGOROUS_BASELINE should only have GROUNDED layer, got {layers}"
         )
 
     def test_active_layers_sensitivity_directional(self):
-        from policylab.game_master.indicator_dynamics import SENSITIVITY_DIRECTIONAL
+        from swarmcast.game_master.indicator_dynamics import SENSITIVITY_DIRECTIONAL
         layers = SENSITIVITY_DIRECTIONAL.active_layers()
         assert "GROUNDED" in layers
         assert "DIRECTIONAL" in layers
         assert "ASSUMED" not in layers
 
     def test_active_layers_sensitivity_assumed(self):
-        from policylab.game_master.indicator_dynamics import SENSITIVITY_ASSUMED
+        from swarmcast.game_master.indicator_dynamics import SENSITIVITY_ASSUMED
         layers = SENSITIVITY_ASSUMED.active_layers()
         assert "GROUNDED" in layers
         assert "DIRECTIONAL" in layers
         assert "ASSUMED" in layers
 
     def test_grounded_burden_coefficient_matches_calibration(self):
-        from policylab.game_master.indicator_dynamics import RIGOROUS_BASELINE
-        from policylab.game_master.calibration import BURDEN_TO_INVESTMENT
+        from swarmcast.game_master.indicator_dynamics import RIGOROUS_BASELINE
+        from swarmcast.game_master.calibration import BURDEN_TO_INVESTMENT
         g = RIGOROUS_BASELINE.grounded
         assert g.burden_to_investment == BURDEN_TO_INVESTMENT.value, (
             "GroundedDynamicsConfig must use calibrated coefficient from calibration.py"
         )
 
     def test_grounded_rd_coefficient_matches_calibration(self):
-        from policylab.game_master.indicator_dynamics import RIGOROUS_BASELINE
-        from policylab.game_master.calibration import RD_TO_INNOVATION
+        from swarmcast.game_master.indicator_dynamics import RIGOROUS_BASELINE
+        from swarmcast.game_master.calibration import RD_TO_INNOVATION
         g = RIGOROUS_BASELINE.grounded
         assert g.investment_to_innovation == RD_TO_INNOVATION.value
 
     def test_rigorous_baseline_burden_suppresses_investment(self):
         """The grounded OECD coefficient must suppress investment when burden is high."""
-        from policylab.game_master.indicator_dynamics import apply_indicator_feedback, RIGOROUS_BASELINE
+        from swarmcast.game_master.indicator_dynamics import apply_indicator_feedback, RIGOROUS_BASELINE
         ws = GovernanceWorldState()
         ws.economic_indicators.update({
             "ai_investment_index": 60.0, "innovation_rate": 60.0,
@@ -1517,7 +1517,7 @@ class TestThreeLayerDynamics:
 
     def test_rigorous_baseline_investment_tiny_innovation_boost(self):
         """The grounded Ugur coefficient (0.000345) should produce only tiny innovation boost."""
-        from policylab.game_master.indicator_dynamics import apply_indicator_feedback, RIGOROUS_BASELINE
+        from swarmcast.game_master.indicator_dynamics import apply_indicator_feedback, RIGOROUS_BASELINE
         ws = GovernanceWorldState()
         ws.economic_indicators.update({
             "ai_investment_index": 90.0, "innovation_rate": 50.0,
@@ -1536,7 +1536,7 @@ class TestThreeLayerDynamics:
         )
 
     def test_no_tipping_in_rigorous_baseline(self):
-        from policylab.game_master.indicator_dynamics import apply_indicator_feedback, RIGOROUS_BASELINE
+        from swarmcast.game_master.indicator_dynamics import apply_indicator_feedback, RIGOROUS_BASELINE
         ws = GovernanceWorldState()
         ws.economic_indicators.update({
             "ai_investment_index": 5.0, "innovation_rate": 5.0,
@@ -1550,7 +1550,7 @@ class TestThreeLayerDynamics:
 
     def test_tipping_labeled_assumed_in_output(self):
         """When tipping fires in ASSUMED config, output must be labeled [ASSUMED-LAYER]."""
-        from policylab.game_master.indicator_dynamics import (
+        from swarmcast.game_master.indicator_dynamics import (
             apply_indicator_feedback, DynamicsConfig,
             GroundedDynamicsConfig, DirectionalDynamicsConfig, AssumedDynamicsConfig
         )
@@ -1581,7 +1581,7 @@ class TestGroundedCoalitionBonus:
 
     def test_coalition_bonus_within_ci_range(self):
         """Solo coalition bonus must be within [1.30, 1.50] from Baumgartner & Leech."""
-        from policylab.game_master.calibration import COALITION_BONUS
+        from swarmcast.game_master.calibration import COALITION_BONUS
         ws = _ws(status="enacted")
         engine = _engine()
         action = GovernanceAction(
@@ -1601,7 +1601,7 @@ class TestGroundedCoalitionBonus:
 
     def test_coalition_bonus_never_exceeds_ci_high(self):
         """Even with maximum coordination, bonus stays within CI upper bound."""
-        from policylab.game_master.calibration import COALITION_BONUS
+        from swarmcast.game_master.calibration import COALITION_BONUS
         ws = _ws(status="enacted")
         engine = _engine()
         actions = [
@@ -1627,7 +1627,7 @@ class TestGroundedCoalitionBonus:
 class TestSensitivityLayer:
 
     def test_sensitivity_module_exists(self):
-        from policylab.game_master.sensitivity_layer import (
+        from swarmcast.game_master.sensitivity_layer import (
             run_config_sensitivity, SensitivityReport,
             RobustnessVerdict, classify_robustness,
             DIRECTIONAL_SWEEP, ASSUMED_SWEEP,
@@ -1635,7 +1635,7 @@ class TestSensitivityLayer:
 
     def test_directional_sweep_covers_zero(self):
         """Every directional parameter sweep must include 0.0 (the rigorous baseline)."""
-        from policylab.game_master.sensitivity_layer import DIRECTIONAL_SWEEP
+        from swarmcast.game_master.sensitivity_layer import DIRECTIONAL_SWEEP
         for param, values in DIRECTIONAL_SWEEP.items():
             assert 0.0 in values, (
                 f"Directional sweep for {param} must include 0.0 (rigorous baseline)"
@@ -1643,24 +1643,24 @@ class TestSensitivityLayer:
 
     def test_assumed_sweep_covers_disabled(self):
         """Assumed parameter sweep must include disabled values."""
-        from policylab.game_master.sensitivity_layer import ASSUMED_SWEEP
+        from swarmcast.game_master.sensitivity_layer import ASSUMED_SWEEP
         # cascade_multiplier: 1.0 = disabled
         assert 1.0 in ASSUMED_SWEEP["cascade_multiplier"]
         # thresholds: 0.0 = disabled
         assert 0.0 in ASSUMED_SWEEP["investment_cascade_threshold"]
 
     def test_robustness_classification_robust(self):
-        from policylab.game_master.sensitivity_layer import classify_robustness
+        from swarmcast.game_master.sensitivity_layer import classify_robustness
         verdict = classify_robustness("test", True, 0.9, 0.9)
         assert verdict == "ROBUST"
 
     def test_robustness_classification_assumed_dependent(self):
-        from policylab.game_master.sensitivity_layer import classify_robustness
+        from swarmcast.game_master.sensitivity_layer import classify_robustness
         verdict = classify_robustness("test", False, 0.1, 0.8)
         assert verdict == "ASSUMED-DEPENDENT"
 
     def test_robustness_classification_directional_dependent(self):
-        from policylab.game_master.sensitivity_layer import classify_robustness
+        from swarmcast.game_master.sensitivity_layer import classify_robustness
         # A7 fix: DIRECTIONAL-DEPENDENT requires dir_fraction >= 0.8 (Saltelli 2004)
         verdict = classify_robustness("test", True, 0.85, 0.3)
         assert verdict == "DIRECTIONAL-DEPENDENT", (
@@ -1673,8 +1673,8 @@ class TestSensitivityLayer:
         )
 
     def test_config_sensitivity_runs(self):
-        from policylab.game_master.sensitivity_layer import run_config_sensitivity
-        from policylab.game_master.calibration import BURDEN_TO_INVESTMENT
+        from swarmcast.game_master.sensitivity_layer import run_config_sensitivity
+        from swarmcast.game_master.calibration import BURDEN_TO_INVESTMENT
         start = {
             "ai_investment_index": 100.0,
             "innovation_rate": 100.0,
@@ -1712,7 +1712,7 @@ class TestContrarianAgent:
 
     def test_default_config_has_contrarian(self):
         """Default agent config must include a contrarian (herd-bias correction)."""
-        from policylab.features.stress_tester import StressTester
+        from swarmcast.features.stress_tester import StressTester
         st = StressTester.__new__(StressTester)
         # Need to add minimal attrs
         st.model = None; st.n_ensemble = 1; st.output_dir = "/tmp"
@@ -1725,7 +1725,7 @@ class TestContrarianAgent:
 
     def test_contrarian_has_supporting_context(self):
         """Contrarian agent context must explicitly state support for regulation."""
-        from policylab.features.stress_tester import StressTester
+        from swarmcast.features.stress_tester import StressTester
         st = StressTester.__new__(StressTester)
         st.model = None; st.n_ensemble = 1; st.output_dir = "/tmp"
         configs = st._default_agent_configs()
@@ -1738,7 +1738,7 @@ class TestContrarianAgent:
 
     def test_six_agents_total(self):
         """Default config must have 6 agents (5 original + 1 contrarian)."""
-        from policylab.features.stress_tester import StressTester
+        from swarmcast.features.stress_tester import StressTester
         st = StressTester.__new__(StressTester)
         st.model = None; st.n_ensemble = 1; st.output_dir = "/tmp"
         configs = st._default_agent_configs()
@@ -1754,7 +1754,7 @@ class TestContrarianAgent:
 class TestEpistemicOutput:
 
     def test_ensemble_summary_leads_with_behavioral(self):
-        from policylab.features.ensemble import EnsembleReport
+        from swarmcast.features.ensemble import EnsembleReport
         run = {
             "results": [], "final_resources": {},
             "final_world_state": {"economic_indicators": {
@@ -1777,7 +1777,7 @@ class TestEpistemicOutput:
         )
 
     def test_indicator_section_labeled_secondary(self):
-        from policylab.features.ensemble import EnsembleReport
+        from swarmcast.features.ensemble import EnsembleReport
         run = {
             "results": [], "final_resources": {},
             "final_world_state": {"economic_indicators": {
@@ -1796,7 +1796,7 @@ class TestEpistemicOutput:
         )
 
     def test_epistemic_disclaimer_present(self):
-        from policylab.disclaimers import indicator_disclaimer
+        from swarmcast.disclaimers import indicator_disclaimer
         disc = indicator_disclaimer()
         assert "ORDINAL" in disc
         assert "INVALID" in disc
@@ -1815,7 +1815,7 @@ class TestTierAAuditFixes:
     # A1: "50×" was wrong; actual ratio is 43.5×
     def test_A1_ratio_is_44x_not_50x(self):
         """0.015 / 0.000345 = 43.5, not 50."""
-        from policylab.game_master.calibration import RD_TO_INNOVATION
+        from swarmcast.game_master.calibration import RD_TO_INNOVATION
         old_value = 0.015
         actual_ratio = old_value / RD_TO_INNOVATION.value
         assert 40 < actual_ratio < 47, (
@@ -1824,7 +1824,7 @@ class TestTierAAuditFixes:
         # Verify no "50x" claim survives in indicator_dynamics.py
         import os
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        dyn_path = os.path.join(base, "policylab", "game_master", "indicator_dynamics.py")
+        dyn_path = os.path.join(base, "swarmcast", "game_master", "indicator_dynamics.py")
         with open(dyn_path) as f:
             dyn_src = f.read()
         assert "50x smaller" not in dyn_src and "50× smaller" not in dyn_src, (
@@ -1836,7 +1836,7 @@ class TestTierAAuditFixes:
         """Eurobarometer 87.1 was autumn 2016, not 2021-2023. Must be corrected."""
         import os
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        calib_path = os.path.join(base, "policylab", "game_master", "calibration.py")
+        calib_path = os.path.join(base, "swarmcast", "game_master", "calibration.py")
         with open(calib_path) as f:
             calib_src = f.read()
         # The wrong citation must not appear as a live target moment
@@ -1853,7 +1853,7 @@ class TestTierAAuditFixes:
     # A3: enforcement_base_prob was 0.08 = 26x GDPR; corrected to 0.015
     def test_A3_enforcement_prob_corrected_from_26x_gdpr(self):
         """0.08/sev at sev-5 = 1.6/yr = 26x GDPR rate. Must be corrected."""
-        from policylab.game_master.resolution_config import DEFAULT_CONFIG
+        from swarmcast.game_master.resolution_config import DEFAULT_CONFIG
         prob = DEFAULT_CONFIG.enforcement_base_prob_per_severity
         at_sev5_annual = 5 * prob * 4  # quarterly * 4
         gdpr_rate = 0.06  # DLA Piper 2020
@@ -1865,7 +1865,7 @@ class TestTierAAuditFixes:
         # Should be tagged DIRECTIONAL (not ASSUMED) since it's partially grounded
         import os
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        rc_path = os.path.join(base, "policylab", "game_master", "resolution_config.py")
+        rc_path = os.path.join(base, "swarmcast", "game_master", "resolution_config.py")
         with open(rc_path) as f:
             rc_src = f.read()
         # Find the enforcement docstring and check it mentions DLA Piper
@@ -1878,7 +1878,7 @@ class TestTierAAuditFixes:
         """Baumgartner & Leech (1998) is a synthesis book, not primary study.
         Success-rate → budget-multiplier conversion is unvalidated.
         Status must be DIRECTIONAL, not GROUNDED."""
-        from policylab.game_master.calibration import COALITION_BONUS, GROUNDED_COEFFICIENTS
+        from swarmcast.game_master.calibration import COALITION_BONUS, GROUNDED_COEFFICIENTS
         assert COALITION_BONUS.status == "DIRECTIONAL", (
             f"Coalition bonus must be DIRECTIONAL (not a primary study), "
             f"got {COALITION_BONUS.status}"
@@ -1894,7 +1894,7 @@ class TestTierAAuditFixes:
     def test_A5_schumpeterian_ci_labeled_as_sensitivity_range(self):
         """Aghion et al. (2005) don't report a CI around peak location.
         The [25,60] range is estimated from figures. Must be documented."""
-        from policylab.game_master.calibration import SCHUMPETERIAN_PEAK
+        from swarmcast.game_master.calibration import SCHUMPETERIAN_PEAK
         # The derivation string must flag this
         assert (
             "NOT a reported CI" in SCHUMPETERIAN_PEAK.derivation
@@ -1907,7 +1907,7 @@ class TestTierAAuditFixes:
         # docstring in calibration.py must also flag this
         import os
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        calib_path = os.path.join(base, "policylab", "game_master", "calibration.py")
+        calib_path = os.path.join(base, "swarmcast", "game_master", "calibration.py")
         with open(calib_path) as f:
             calib_src = f.read()
         assert "NOT report" in calib_src or "not report" in calib_src.lower() or                "NOT a reported CI" in calib_src, (
@@ -1917,7 +1917,7 @@ class TestTierAAuditFixes:
     # A6: Threshold sweep must be independent (4^4 = 256 configs)
     def test_A6_assumed_sweep_is_independent(self):
         """All four assumed parameters must be swept independently."""
-        from policylab.game_master.sensitivity_layer import _build_assumed_configs
+        from swarmcast.game_master.sensitivity_layer import _build_assumed_configs
         configs = _build_assumed_configs()
         assert len(configs) == 256, (
             f"Assumed sweep must have 4^4=256 configs (independent variation), "
@@ -1941,7 +1941,7 @@ class TestTierAAuditFixes:
     # A7: Robustness thresholds must follow Saltelli (2004): 90% for ROBUST
     def test_A7_robustness_thresholds_follow_saltelli(self):
         """Saltelli et al. (2004): policy models need >=90% for ROBUST verdict."""
-        from policylab.game_master.sensitivity_layer import classify_robustness
+        from swarmcast.game_master.sensitivity_layer import classify_robustness
         # 89% should NOT be ROBUST
         assert classify_robustness("t", True, 0.89, 0.89) != "ROBUST", (
             "89% should not qualify as ROBUST (Saltelli 2004 requires 90%)"
@@ -1960,7 +1960,7 @@ class TestTierAAuditFixes:
         )
         # Saltelli citation must appear in source
         import os, inspect
-        from policylab.game_master import sensitivity_layer
+        from swarmcast.game_master import sensitivity_layer
         src = inspect.getsource(sensitivity_layer)
         assert "Saltelli" in src, "sensitivity_layer.py must cite Saltelli et al. (2004)"
 
@@ -1975,7 +1975,7 @@ class TestTierBDocumentation:
 
     def test_tier_b_gaps_in_disclaimer(self):
         """All 7 Tier B gaps must appear in the epistemic disclaimer."""
-        from policylab.disclaimers import indicator_disclaimer
+        from swarmcast.disclaimers import indicator_disclaimer
         disc = indicator_disclaimer()
         gap_keywords = [
             ("B1", ["B1", "innovation", "feedback", "acyclic"]),
@@ -1995,7 +1995,7 @@ class TestTierBDocumentation:
 
     def test_tier_b_b4_horizon_issue(self):
         """B4: simulation default of 8 rounds is documented as too short."""
-        from policylab.disclaimers import indicator_disclaimer
+        from swarmcast.disclaimers import indicator_disclaimer
         disc = indicator_disclaimer()
         assert "16" in disc or "horizon" in disc.lower(), (
             "B4 must mention >=16 rounds as the minimum defensible horizon"
@@ -2005,7 +2005,7 @@ class TestTierBDocumentation:
         """B1: the grounded config must NOT have an innovation→investment path
         (since we have no empirical basis and it would make the acyclic gap
         a structural loop without proper Aghion-Howitt dynamic specification)."""
-        from policylab.game_master.indicator_dynamics import RIGOROUS_BASELINE
+        from swarmcast.game_master.indicator_dynamics import RIGOROUS_BASELINE
         g = RIGOROUS_BASELINE.grounded
         # The only investment-related grounded coupling is burden→investment.
         # innovation_to_investment would require a return path — not yet modeled.
@@ -2020,7 +2020,7 @@ class TestTierBDocumentation:
         # in the grounded layer. This is correct given the missing stock model.
         # Just verify the grounded config doesn't create a loop.
         import inspect
-        from policylab.game_master import indicator_dynamics
+        from swarmcast.game_master import indicator_dynamics
         src = inspect.getsource(indicator_dynamics)
         # LAYER 1 must not contain innovation→investment (that would be the missing loop)
         # It should contain investment→innovation (the Ugur direction)
@@ -2028,7 +2028,7 @@ class TestTierBDocumentation:
 
     def test_tier_b_b3_burden_ratchet_documented(self):
         """B3: the burden-only-increases issue must be acknowledged."""
-        from policylab.disclaimers import indicator_disclaimer
+        from swarmcast.disclaimers import indicator_disclaimer
         disc = indicator_disclaimer()
         # B3 is about burden ratcheting up with no outflow
         assert any(kw in disc.lower() for kw in ["ratchet", "discharge", "burden"]), (
@@ -2047,7 +2047,7 @@ class TestRemainingAgent3Fixes:
     def test_M11_dynamics_config_param_in_stress_tester(self):
         """StressTester must accept and store dynamics_config parameter."""
         import inspect
-        from policylab.features.stress_tester import StressTester
+        from swarmcast.features.stress_tester import StressTester
         sig = inspect.signature(StressTester.__init__)
         assert "dynamics_config" in sig.parameters, (
             "StressTester.__init__ must accept dynamics_config parameter"
@@ -2056,7 +2056,7 @@ class TestRemainingAgent3Fixes:
     def test_M11_dynamics_config_in_run_simulation_loop(self):
         """run_simulation_loop must accept dynamics_config parameter."""
         import inspect
-        from policylab.game_master.simulation_loop import run_simulation_loop
+        from swarmcast.game_master.simulation_loop import run_simulation_loop
         sig = inspect.signature(run_simulation_loop)
         assert "dynamics_config" in sig.parameters, (
             "run_simulation_loop must accept dynamics_config to allow rigorous/sensitivity modes"
@@ -2065,7 +2065,7 @@ class TestRemainingAgent3Fixes:
     def test_M11_assumed_config_warns(self):
         """Passing SENSITIVITY_ASSUMED to StressTester must trigger a UserWarning."""
         import warnings
-        from policylab.game_master.indicator_dynamics import SENSITIVITY_ASSUMED
+        from swarmcast.game_master.indicator_dynamics import SENSITIVITY_ASSUMED
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             # Build a minimal stress tester with SENSITIVITY_ASSUMED
@@ -2083,7 +2083,7 @@ class TestRemainingAgent3Fixes:
 
     def test_M11_rigorous_baseline_no_warning(self):
         """RIGOROUS_BASELINE must NOT set _non_robust_mode."""
-        from policylab.game_master.indicator_dynamics import RIGOROUS_BASELINE
+        from swarmcast.game_master.indicator_dynamics import RIGOROUS_BASELINE
         active = RIGOROUS_BASELINE.active_layers()
         assert "ASSUMED" not in active, (
             "RIGOROUS_BASELINE must not activate ASSUMED layer"
@@ -2094,7 +2094,7 @@ class TestRemainingAgent3Fixes:
         until December 2023 — so this window is pre-regulation."""
         import os
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        calib_path = os.path.join(base, "policylab", "game_master", "calibration.py")
+        calib_path = os.path.join(base, "swarmcast", "game_master", "calibration.py")
         with open(calib_path) as f:
             calib_src = f.read()
         # Must document the temporal issue
@@ -2108,7 +2108,7 @@ class TestRemainingAgent3Fixes:
         from the model's discrete compliance events — must be documented."""
         import os
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        calib_path = os.path.join(base, "policylab", "game_master", "calibration.py")
+        calib_path = os.path.join(base, "swarmcast", "game_master", "calibration.py")
         with open(calib_path) as f:
             calib_src = f.read()
         assert "MEASUREMENT GAP" in calib_src or "compliance_rate" in calib_src.lower(), (
@@ -2120,7 +2120,7 @@ class TestRemainingAgent3Fixes:
         """run_config_sensitivity() omits agent behavior — must be documented."""
         import os
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        sens_path = os.path.join(base, "policylab", "game_master", "sensitivity_layer.py")
+        sens_path = os.path.join(base, "swarmcast", "game_master", "sensitivity_layer.py")
         with open(sens_path) as f:
             sens_src = f.read()
         assert "no LLM" in sens_src.lower() or "without LLM" in sens_src.lower() or                "indicator dynamics alone" in sens_src, (
@@ -2130,8 +2130,8 @@ class TestRemainingAgent3Fixes:
 
     def test_non_robust_label_on_report(self):
         """StressTestReport must have non_robust_mode attribute after SENSITIVITY_ASSUMED run."""
-        from policylab.features.stress_tester import StressTestReport
-        from policylab.features.ensemble import EnsembleReport
+        from swarmcast.features.stress_tester import StressTestReport
+        from swarmcast.features.ensemble import EnsembleReport
         policy = Policy("test", "Test Policy", "desc", [], [], [], status="enacted")
         run = {
             "results": [], "final_resources": {},
@@ -2163,7 +2163,7 @@ class TestCounterfactualIsolation:
 
     def test_baseline_premise_contains_no_policy_name(self):
         """_build_baseline_premise must NEVER mention the policy name."""
-        from policylab.features.stress_tester import StressTester
+        from swarmcast.features.stress_tester import StressTester
         st = StressTester.__new__(StressTester)
         policy = Policy(
             "total_ai_moratorium", "Total AI Development Moratorium",
@@ -2181,7 +2181,7 @@ class TestCounterfactualIsolation:
 
     def test_baseline_premise_describes_neutral_world(self):
         """Baseline premise must describe a world with no new AI regulation."""
-        from policylab.features.stress_tester import StressTester
+        from swarmcast.features.stress_tester import StressTester
         st = StressTester.__new__(StressTester)
         policy = Policy("test", "Test Policy", "desc", [], [], [], status="enacted")
         premise = st._build_baseline_premise(policy)
@@ -2226,11 +2226,11 @@ class TestCounterfactualIsolation:
 class TestContrarianObjective:
 
     def test_safety_first_corp_objective_exists(self):
-        from policylab.components.objectives import SAFETY_FIRST_CORP
+        from swarmcast.components.objectives import SAFETY_FIRST_CORP
         assert SAFETY_FIRST_CORP is not None
 
     def test_safety_first_corp_cannot_relocate(self):
-        from policylab.components.objectives import SAFETY_FIRST_CORP
+        from swarmcast.components.objectives import SAFETY_FIRST_CORP
         cannot = " ".join(SAFETY_FIRST_CORP.cannot_accept).lower()
         assert "relocat" in cannot, (
             "SAFETY_FIRST_CORP.cannot_accept must explicitly prohibit relocation. "
@@ -2238,33 +2238,33 @@ class TestContrarianObjective:
         )
 
     def test_safety_first_corp_cannot_oppose_regulation(self):
-        from policylab.components.objectives import SAFETY_FIRST_CORP
+        from swarmcast.components.objectives import SAFETY_FIRST_CORP
         cannot = " ".join(SAFETY_FIRST_CORP.cannot_accept).lower()
         assert "oppose" in cannot or "oppos" in cannot or "appear to oppose" in cannot, (
             "SAFETY_FIRST_CORP must be prohibited from opposing regulations"
         )
 
     def test_safety_first_corp_can_support_regulation(self):
-        from policylab.components.objectives import SAFETY_FIRST_CORP
+        from swarmcast.components.objectives import SAFETY_FIRST_CORP
         can = " ".join(SAFETY_FIRST_CORP.can_do).lower()
         assert "support" in can or "comply" in can or "strengthen" in can, (
             "SAFETY_FIRST_CORP must be able to support/comply with regulation"
         )
 
     def test_safety_first_corp_has_high_public_trust(self):
-        from policylab.components.objectives import SAFETY_FIRST_CORP, TECH_COMPANY_LARGE
+        from swarmcast.components.objectives import SAFETY_FIRST_CORP, TECH_COMPANY_LARGE
         assert SAFETY_FIRST_CORP.resources.get("public_trust", 0) >                TECH_COMPANY_LARGE.resources.get("public_trust", 0), (
             "SAFETY_FIRST_CORP must have higher public_trust than TECH_COMPANY_LARGE "
             "(its competitive advantage is safety reputation)"
         )
 
     def test_contrarian_uses_safety_first_objective(self):
-        from policylab.components.objectives import SAFETY_FIRST_CORP
-        from policylab.features.stress_tester import StressTester
+        from swarmcast.components.objectives import SAFETY_FIRST_CORP
+        from swarmcast.features.stress_tester import StressTester
         st = StressTester.__new__(StressTester)
         st.model = None; st.embedder = None; st.n_ensemble = 1
         st.num_rounds = 8; st.output_dir = "/tmp"; st.revalidate = False
-        from policylab.game_master.indicator_dynamics import RIGOROUS_BASELINE
+        from swarmcast.game_master.indicator_dynamics import RIGOROUS_BASELINE
         st.dynamics_config = RIGOROUS_BASELINE; st._non_robust_mode = False
         configs = st._default_agent_configs()
         contrarians = [c for c in configs if c.get("_is_contrarian")]
@@ -2277,11 +2277,11 @@ class TestContrarianObjective:
 
     def test_contrarian_extra_context_explicitly_bans_relocation(self):
         """extra_context must explicitly say DO NOT RELOCATE in strong terms."""
-        from policylab.features.stress_tester import StressTester
+        from swarmcast.features.stress_tester import StressTester
         st = StressTester.__new__(StressTester)
         st.model = None; st.embedder = None; st.n_ensemble = 1
         st.num_rounds = 8; st.output_dir = "/tmp"; st.revalidate = False
-        from policylab.game_master.indicator_dynamics import RIGOROUS_BASELINE
+        from swarmcast.game_master.indicator_dynamics import RIGOROUS_BASELINE
         st.dynamics_config = RIGOROUS_BASELINE; st._non_robust_mode = False
         configs = st._default_agent_configs()
         contrarians = [c for c in configs if c.get("_is_contrarian")]
@@ -2305,7 +2305,7 @@ class TestAuditResponseFindings:
         Fix: _DAYS_PER_ROUND = 365/4 = 91.25, consistent with calibration.py
              ROUNDS_PER_YEAR=4.
         """
-        from policylab.game_master.severity import _DAYS_PER_ROUND
+        from swarmcast.game_master.severity import _DAYS_PER_ROUND
         assert abs(_DAYS_PER_ROUND - 91.25) < 0.1, (
             f"_DAYS_PER_ROUND must be 91.25 (365/4), got {_DAYS_PER_ROUND}"
         )
@@ -2316,7 +2316,7 @@ class TestAuditResponseFindings:
         At 91.25 days/round: 90 days = 0.99 rounds → round(0.99) - 1 = -1 → max(0, -1) = 0.
         At 14 days/round:    90 days = 6.4 rounds → round(6.4) - 1 = 5 grace rounds [WRONG].
         """
-        from policylab.game_master.severity import extract_enforcement_capacity
+        from swarmcast.game_master.severity import extract_enforcement_capacity
         result = extract_enforcement_capacity(
             "All models must be deregistered within 90 days."
         )
@@ -2328,7 +2328,7 @@ class TestAuditResponseFindings:
 
     def test_NEW3_365_day_window_gives_3_grace_rounds(self):
         """365-day (1 year) window should give ~3 grace rounds at quarterly periodization."""
-        from policylab.game_master.severity import extract_enforcement_capacity
+        from swarmcast.game_master.severity import extract_enforcement_capacity
         result = extract_enforcement_capacity(
             "Entities must comply within 365 days of enactment."
         )
@@ -2341,7 +2341,7 @@ class TestAuditResponseFindings:
 
     def test_NEW3_180_day_window_gives_1_grace_round(self):
         """180-day window should give 1 grace round (180/91.25=1.97 → round=2 → -1=1)."""
-        from policylab.game_master.severity import extract_enforcement_capacity
+        from swarmcast.game_master.severity import extract_enforcement_capacity
         result = extract_enforcement_capacity(
             "Compliance required within 180 days."
         )
@@ -2357,8 +2357,8 @@ class TestAuditResponseFindings:
         lambda_large = 3.32 rounds × 91 days/round = ~302 days to 63% compliance.
         If rounds were 14 days: 3.32 × 14 = 46 days — far too fast vs GDPR 24mo.
         """
-        from policylab.v2.population.response_functions import COMPLIANCE_LAMBDA
-        from policylab.game_master.severity import _DAYS_PER_ROUND
+        from swarmcast.v2.population.response_functions import COMPLIANCE_LAMBDA
+        from swarmcast.game_master.severity import _DAYS_PER_ROUND
 
         lambda_large = COMPLIANCE_LAMBDA["large_company"]  # 3.32 rounds
         days_to_63pct = lambda_large * _DAYS_PER_ROUND
@@ -2393,7 +2393,7 @@ class TestAuditResponseFindings:
 
     def test_NEW1_staff_scaling_parameter_exists_in_config(self):
         """enforcement_staff_scaling must be in ResolutionConfig with sweep range."""
-        from policylab.game_master.resolution_config import ResolutionConfig
+        from swarmcast.game_master.resolution_config import ResolutionConfig
         import dataclasses
         fields = {f.name for f in dataclasses.fields(ResolutionConfig)}
         assert "enforcement_staff_scaling" in fields, (
@@ -2403,12 +2403,12 @@ class TestAuditResponseFindings:
 
     def test_NEW1_staff_scaling_default_is_0_3(self):
         """Default staff scaling must remain 0.3 (matches existing tests)."""
-        from policylab.game_master.resolution_config import ResolutionConfig
+        from swarmcast.game_master.resolution_config import ResolutionConfig
         assert ResolutionConfig().enforcement_staff_scaling == 0.3
 
     def test_NEW1_extract_uses_config_staff_scaling(self):
         """extract_enforcement_capacity must use the staff_scaling parameter."""
-        from policylab.game_master.severity import extract_enforcement_capacity
+        from swarmcast.game_master.severity import extract_enforcement_capacity
         r_default = extract_enforcement_capacity("500-person Bureau.")
         r_low = extract_enforcement_capacity("500-person Bureau.", staff_scaling=0.1)
         r_high = extract_enforcement_capacity("500-person Bureau.", staff_scaling=1.0)
@@ -2423,7 +2423,7 @@ class TestAuditResponseFindings:
 
     def test_NEW2_severity_scoring_params_in_config(self):
         """severity_req_weight and severity_penalty_weight must be ResolutionConfig params."""
-        from policylab.game_master.resolution_config import ResolutionConfig
+        from swarmcast.game_master.resolution_config import ResolutionConfig
         import dataclasses
         fields = {f.name for f in dataclasses.fields(ResolutionConfig)}
         assert "severity_req_weight" in fields, (
@@ -2455,7 +2455,7 @@ class TestAuditResponseFindings:
         v2 fix: investment = 100 × (expected_future_innovation/100) - burden_suppression.
         Test: high expected innovation → higher investment than low expected innovation.
         """
-        from policylab.v2.stocks.governance_stocks import GovernanceStocks
+        from swarmcast.v2.stocks.governance_stocks import GovernanceStocks
 
         high_expect = GovernanceStocks()
         high_expect.innovation.expected_future_level = 90.0

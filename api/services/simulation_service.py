@@ -40,7 +40,7 @@ _executor = ThreadPoolExecutor(max_workers=4)
 
 
 def _build_hybrid_config(req: SimulateRequest, parameter_overrides: dict | None = None):
-    from policylab.v2.simulation.hybrid_loop import HybridSimConfig
+    from swarmcast.v2.simulation.hybrid_loop import HybridSimConfig
 
     kwargs: dict[str, Any] = {
         "n_population": req.config.n_population,
@@ -68,7 +68,7 @@ def _build_hybrid_config(req: SimulateRequest, parameter_overrides: dict | None 
 
 
 def _run_simulation_sync(req: SimulateRequest, swarm_result=None) -> SimulateResponse:
-    from policylab.v2.simulation.hybrid_loop import run_hybrid_simulation
+    from swarmcast.v2.simulation.hybrid_loop import run_hybrid_simulation
 
     t0 = time.perf_counter()
     parameter_overrides = (

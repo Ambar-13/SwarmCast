@@ -28,7 +28,7 @@ def _run_one_sync(
     config_kwargs: dict[str, Any],
     seed: int,
 ) -> list[dict]:
-    from policylab.v2.simulation.hybrid_loop import HybridSimConfig, run_hybrid_simulation
+    from swarmcast.v2.simulation.hybrid_loop import HybridSimConfig, run_hybrid_simulation
 
     allowed_keys = {
         "n_population", "num_rounds", "spillover_factor", "use_network",

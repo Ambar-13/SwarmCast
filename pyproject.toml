@@ -1,7 +1,7 @@
 [project]
 name = "policylab"
 version = "1.0.0"
-description = "Swarmcast — multi-agent behavioral simulation with LLM swarm intelligence for macro scenario analysis"
+description = "SwarmCast — multi-agent behavioral simulation with LLM swarm intelligence for macro scenario analysis"
 authors = [{ name = "Ambar" }]
 requires-python = ">=3.10"
 dependencies = [

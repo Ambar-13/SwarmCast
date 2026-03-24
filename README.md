@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="swarmcast_logo.svg" alt="Swarmcast" width="620" />
+  <img src="swarmcast_logo.svg" alt="SwarmCast" width="620" />
 </p>
 
 <p align="center">
-  <b>v1.0.0</b> &nbsp;·&nbsp; Author: Ambar &nbsp;·&nbsp;
+  <b>v1.0.0</b> &nbsp;·&nbsp; Author: Ambar<br/>
   <a href="#1-quickstart--web-app">Quickstart</a> &nbsp;·&nbsp;
   <a href="#2-optional-swarm-llm-intelligence">Swarm Mode</a> &nbsp;·&nbsp;
   <a href="#6-epistemic-framework">Epistemic Framework</a> &nbsp;·&nbsp;
@@ -12,7 +12,7 @@
 
 ---
 
-Swarmcast is a macro behavioral simulation engine. It models how large populations of heterogeneous agents — companies, investors, regulators, consumers, traders — respond to shocks, rules, and incentives over time. It produces population-level behavioral forecasts (adoption curves, defection rates, coalition formation, jurisdiction flight, compliance timelines) with an epistemic layer that tracks exactly how grounded each output is.
+SwarmCast is a macro behavioral simulation engine. It models how large populations of heterogeneous agents — companies, investors, regulators, consumers, traders — respond to shocks, rules, and incentives over time. It produces population-level behavioral forecasts (adoption curves, defection rates, coalition formation, jurisdiction flight, compliance timelines) with an epistemic layer that tracks exactly how grounded each output is.
 
 Built for any domain where aggregate behavior emerges from individual decisions:
 
@@ -45,7 +45,7 @@ Built for any domain where aggregate behavior emerges from individual decisions:
 
 ## 1. Quickstart — Web App
 
-The fastest way to use Swarmcast is the web interface. You get an interactive simulation environment, real-time charts, agent network visualizations, and an epistemic transparency layer — no code required.
+The fastest way to use SwarmCast is the web interface. You get an interactive simulation environment, real-time charts, agent network visualizations, and an epistemic transparency layer — no code required.
 
 ### Step 1 — Install Python dependencies
 
@@ -89,7 +89,7 @@ Open `http://localhost:3000` in your browser.
 
 ## 2. Optional: Swarm LLM Intelligence
 
-By default, Swarmcast runs a fast vectorized simulation (~2s for n=1,000 agents). Optionally, you can layer in **swarm LLM intelligence** — a set of 23 persona agents (frontier lab, SME, investor, regulator, civil society…) that reason about the scenario using a language model and produce behaviorally-calibrated priors that seed the population simulation.
+By default, SwarmCast runs a fast vectorized simulation (~2s for n=1,000 agents). Optionally, you can layer in **swarm LLM intelligence** — a set of 23 persona agents (frontier lab, SME, investor, regulator, civil society…) that reason about the scenario using a language model and produce behaviorally-calibrated priors that seed the population simulation.
 
 Swarm mode is **off by default** and requires an OpenAI API key.
 
@@ -105,7 +105,7 @@ The **Swarm Intelligence** toggle is in the Simulation Config panel (right side,
 # api/.env  (no restart needed — read on every request)
 OPENAI_API_KEY=sk-...
 
-# or with the Swarmcast-namespaced key:
+# or with the SwarmCast-namespaced key:
 SWARMCAST_OPENAI_API_KEY=sk-...
 ```
 
@@ -218,7 +218,7 @@ Six simulated moments are calibrated against empirical targets:
 
 ## 5. 15 Jurisdictions
 
-Swarmcast models company relocation across 15 destinations. Each jurisdiction has a regulatory burden score, corporate tax rate, innovation subsidy, and initial company count.
+SwarmCast models company relocation across 15 destinations. Each jurisdiction has a regulatory burden score, corporate tax rate, innovation subsidy, and initial company count.
 
 | Jurisdiction | Burden | Tax | Stance | Notes |
 |---|---|---|---|---|
@@ -401,7 +401,7 @@ Run the Evidence Pack (Analyze page → Evidence Pack button) to generate 9-run 
 - **Network is static.** The social influence graph is initialised once at simulation start and does not rewire as agents relocate or change behavior.
 - **Jurisdiction burden is endogenous but one-directional.** Regulatory burden in destination jurisdictions rises as companies arrive (logarithmic saturation), but source jurisdiction burden does not fall as companies leave.
 - **Swarm personas are AI governance–tuned.** The 23 LLM persona prompts are written for regulatory compliance scenarios. For other domains, the persona reasoning will still be directionally useful but less precisely calibrated.
-- **No financial contagion.** The investment index is an aggregate sentiment indicator. For asset pricing applications, pair outputs with a quantitative pricing model — Swarmcast gives you the behavioral layer, not the discount rate.
+- **No financial contagion.** The investment index is an aggregate sentiment indicator. For asset pricing applications, pair outputs with a quantitative pricing model — SwarmCast gives you the behavioral layer, not the discount rate.
 
 ---
 
@@ -420,4 +420,4 @@ Run the Evidence Pack (Analyze page → Evidence Pack button) to generate 9-run 
 
 ---
 
-*Swarmcast v1.0.0 · All ASSUMED-tier parameters should be swept in sensitivity analysis before outputs are presented as evidence. GROUNDED and DIRECTIONAL outputs are calibrated against empirical sources cited above.*
+*SwarmCast v1.0.0 · All ASSUMED-tier parameters should be swept in sensitivity analysis before outputs are presented as evidence. GROUNDED and DIRECTIONAL outputs are calibrated against empirical sources cited above.*

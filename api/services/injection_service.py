@@ -17,7 +17,7 @@ _executor = ThreadPoolExecutor(max_workers=2)
 
 
 def _run_injection_sync(req: InjectRequest) -> InjectionResult:
-    from policylab.v2.influence.adversarial import run_with_injection
+    from swarmcast.v2.influence.adversarial import run_with_injection
 
     result = run_with_injection(
         policy_name=req.policy_name,

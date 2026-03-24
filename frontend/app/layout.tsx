@@ -18,7 +18,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Swarmcast",
+  title: "SwarmCast",
   description: "Multi-agent behavioral simulation with LLM swarm intelligence",
 };
 

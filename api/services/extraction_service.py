@@ -62,12 +62,12 @@ def _convert_spec(ps) -> PolicySpec:
 
 
 def _ingest_file_sync(file_path: str, api_key: str | None, model: str):
-    from policylab.v2.ingest.pipeline import ingest
+    from swarmcast.v2.ingest.pipeline import ingest
     return ingest(file_path, api_key=api_key, model=model, verbose=False)
 
 
 def _ingest_text_sync(text: str, name: str, api_key: str | None, model: str):
-    from policylab.v2.ingest.pipeline import ingest_text
+    from swarmcast.v2.ingest.pipeline import ingest_text
     return ingest_text(text, name=name, api_key=api_key, model=model, verbose=False)
 
 

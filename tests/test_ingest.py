@@ -1,4 +1,4 @@
-"""Tests for the Swarmcast v2 document ingestion pipeline.
+"""Tests for the SwarmCast v2 document ingestion pipeline.
 
 Covers:
   1. Document loader — text chunking, char_offset correctness (Fix 3)
@@ -29,7 +29,7 @@ class TestDocumentLoader:
 
     def test_load_text_string_char_offsets_sorted(self):
         """Fix 3: char_offsets must be strictly non-decreasing across paragraphs."""
-        from policylab.v2.ingest.document_loader import load_text_string
+        from swarmcast.v2.ingest.document_loader import load_text_string
         doc = load_text_string("First paragraph.\n\nSecond paragraph.\n\nThird paragraph.")
         offsets = [c.char_offset for c in doc.chunks]
         assert offsets == sorted(offsets), (
@@ -38,7 +38,7 @@ class TestDocumentLoader:
 
     def test_load_text_string_para2_offset_nonzero(self):
         """Fix 3: paragraph 2 offset must be > len(para1), not 0."""
-        from policylab.v2.ingest.document_loader import load_text_string
+        from swarmcast.v2.ingest.document_loader import load_text_string
         doc = load_text_string("First paragraph text here.\n\nSecond paragraph text here.")
         assert len(doc.chunks) == 2, f"Expected 2 chunks, got {len(doc.chunks)}"
         para1_len = len(doc.chunks[0].text)
@@ -50,7 +50,7 @@ class TestDocumentLoader:
 
     def test_load_text_string_offset_points_to_correct_text(self):
         """char_offset must point to the start of the paragraph in full_text."""
-        from policylab.v2.ingest.document_loader import load_text_string
+        from swarmcast.v2.ingest.document_loader import load_text_string
         doc = load_text_string("Alpha beta gamma.\n\nDelta epsilon zeta.\n\nEta theta iota.")
         for chunk in doc.chunks:
             reconstructed = doc.full_text[chunk.char_offset:chunk.char_offset + len(chunk.text)]
@@ -61,7 +61,7 @@ class TestDocumentLoader:
 
     def test_load_text_string_identical_paragraphs(self):
         """Identical paragraphs must get distinct offsets, not all map to first occurrence."""
-        from policylab.v2.ingest.document_loader import load_text_string
+        from swarmcast.v2.ingest.document_loader import load_text_string
         doc = load_text_string("Same text.\n\nSame text.\n\nSame text.")
         offsets = [c.char_offset for c in doc.chunks]
         assert len(set(offsets)) == len(offsets), (
@@ -71,7 +71,7 @@ class TestDocumentLoader:
 
     def test_load_text_string_returns_loaded_document(self):
         """load_text_string must return a LoadedDocument."""
-        from policylab.v2.ingest.document_loader import load_text_string, LoadedDocument
+        from swarmcast.v2.ingest.document_loader import load_text_string, LoadedDocument
         doc = load_text_string("Simple text.")
         assert isinstance(doc, LoadedDocument)
         assert doc.file_type == "txt"
@@ -80,7 +80,7 @@ class TestDocumentLoader:
 
     def test_passage_with_context_returns_correct_region(self):
         """passage_with_context must return text around the given offset."""
-        from policylab.v2.ingest.document_loader import load_text_string
+        from swarmcast.v2.ingest.document_loader import load_text_string
         doc = load_text_string("First paragraph.\n\nSecond paragraph with key text here.")
         # Find offset of "key text"
         offset = doc.full_text.find("key text")
@@ -95,8 +95,8 @@ class TestDocumentLoader:
 class TestProvisionExtractorRegex:
 
     def _extract(self, text: str):
-        from policylab.v2.ingest.document_loader import load_text_string
-        from policylab.v2.ingest.provision_extractor import _extract_regex
+        from swarmcast.v2.ingest.document_loader import load_text_string
+        from swarmcast.v2.ingest.provision_extractor import _extract_regex
         return _extract_regex(load_text_string(text))
 
     def test_compute_threshold_plain_10_to_26(self):
@@ -196,7 +196,7 @@ class TestPassageValidation:
 
     def test_genuine_passage_found(self):
         """Fix 6: a passage that exists in the document must be accepted."""
-        from policylab.v2.ingest.provision_extractor import _validate_source_passage
+        from swarmcast.v2.ingest.provision_extractor import _validate_source_passage
         text = "civil fines up to one million dollars per violation"
         doc_text = "... " + text + " ..."
         validated, ok = _validate_source_passage(text, doc_text)
@@ -205,7 +205,7 @@ class TestPassageValidation:
 
     def test_hallucinated_passage_rejected(self):
         """Fix 6: a passage not in the document must be rejected and confidence capped."""
-        from policylab.v2.ingest.provision_extractor import _validate_source_passage
+        from swarmcast.v2.ingest.provision_extractor import _validate_source_passage
         fake = "this text does not appear anywhere in the document at all"
         doc_text = "The regulation requires third-party safety evaluations."
         validated, ok = _validate_source_passage(fake, doc_text)
@@ -214,7 +214,7 @@ class TestPassageValidation:
 
     def test_normalised_whitespace_match(self):
         """Passage with collapsed whitespace (LLM artefact) must still match."""
-        from policylab.v2.ingest.provision_extractor import _validate_source_passage
+        from swarmcast.v2.ingest.provision_extractor import _validate_source_passage
         # Document has "civil\npenalties" (line break), LLM returns "civil penalties" (space)
         passage = "civil penalties up to one million"
         doc_text = "civil\npenalties up to one million dollars per violation"
@@ -223,26 +223,26 @@ class TestPassageValidation:
 
     def test_short_passage_skipped(self):
         """Very short passages (< min_len) must be skipped without crashing."""
-        from policylab.v2.ingest.provision_extractor import _validate_source_passage
+        from swarmcast.v2.ingest.provision_extractor import _validate_source_passage
         _, ok = _validate_source_passage("hi", "hi there in the document")
         # Short passages return the original value unchanged — just no match attempt
         assert ok is False  # too short to validate
 
     def test_epistemic_tag_grounded_when_confident(self):
         """confidence >= 0.80 must produce GROUNDED tag."""
-        from policylab.v2.ingest.provision_extractor import ExtractedField
+        from swarmcast.v2.ingest.provision_extractor import ExtractedField
         f = ExtractedField(value="civil", confidence=0.90, source_passage="...", extraction_method="llm")
         assert f.epistemic_tag == "GROUNDED"
 
     def test_epistemic_tag_directional(self):
         """0.50 <= confidence < 0.80 must produce DIRECTIONAL."""
-        from policylab.v2.ingest.provision_extractor import ExtractedField
+        from swarmcast.v2.ingest.provision_extractor import ExtractedField
         f = ExtractedField(value="civil", confidence=0.65, source_passage="", extraction_method="regex")
         assert f.epistemic_tag == "DIRECTIONAL"
 
     def test_epistemic_tag_assumed(self):
         """confidence < 0.50 must produce ASSUMED."""
-        from policylab.v2.ingest.provision_extractor import ExtractedField
+        from swarmcast.v2.ingest.provision_extractor import ExtractedField
         f = ExtractedField(value="all", confidence=0.30, source_passage="", extraction_method="regex")
         assert f.epistemic_tag == "ASSUMED"
 
@@ -254,18 +254,18 @@ class TestPassageValidation:
 class TestEntityGraph:
 
     def _build_graph(self, text: str):
-        from policylab.v2.ingest.document_loader import load_text_string
-        from policylab.v2.ingest.provision_extractor import _extract_regex
-        from policylab.v2.ingest.entity_graph import build_entity_graph
+        from swarmcast.v2.ingest.document_loader import load_text_string
+        from swarmcast.v2.ingest.provision_extractor import _extract_regex
+        from swarmcast.v2.ingest.entity_graph import build_entity_graph
         doc = load_text_string(text)
         ex = _extract_regex(doc)
         return build_entity_graph(ex), ex
 
     def test_mid_company_in_regulated_types(self):
         """Fix 11: mid_company must appear in regulated_entity_types() when developers present."""
-        from policylab.v2.ingest.entity_graph import EntityGraph, build_entity_graph
-        from policylab.v2.ingest.document_loader import load_text_string
-        from policylab.v2.ingest.provision_extractor import _extract_regex
+        from swarmcast.v2.ingest.entity_graph import EntityGraph, build_entity_graph
+        from swarmcast.v2.ingest.document_loader import load_text_string
+        from swarmcast.v2.ingest.provision_extractor import _extract_regex
         doc = load_text_string("Large AI developers above $500M revenue must comply with this regulation.")
         ex = _extract_regex(doc)
         ex.scope.value = "large_developers_only"  # ensure developer node is added
@@ -322,10 +322,10 @@ class TestEntityGraph:
 class TestSpecBuilder:
 
     def _build(self, text: str):
-        from policylab.v2.ingest.document_loader import load_text_string
-        from policylab.v2.ingest.provision_extractor import _extract_regex
-        from policylab.v2.ingest.entity_graph import build_entity_graph
-        from policylab.v2.ingest.spec_builder import build_spec
+        from swarmcast.v2.ingest.document_loader import load_text_string
+        from swarmcast.v2.ingest.provision_extractor import _extract_regex
+        from swarmcast.v2.ingest.entity_graph import build_entity_graph
+        from swarmcast.v2.ingest.spec_builder import build_spec
         doc = load_text_string(text)
         ex = _extract_regex(doc)
         g = build_entity_graph(ex)
@@ -359,7 +359,7 @@ class TestSpecBuilder:
         """Fix 10: spec_builder must call graph.regulated_entity_types()."""
         # Verify at source level that the code uses the graph
         import inspect
-        from policylab.v2.ingest import spec_builder
+        from swarmcast.v2.ingest import spec_builder
         src = inspect.getsource(spec_builder)
         assert "graph.regulated_entity_types" in src, (
             "spec_builder must use graph.regulated_entity_types() — Fix 10"
@@ -367,10 +367,10 @@ class TestSpecBuilder:
 
     def test_frontier_heavy_when_scope_frontier_only(self):
         """frontier_only scope must produce higher frontier_lab fraction than all-scope."""
-        from policylab.v2.ingest.document_loader import load_text_string
-        from policylab.v2.ingest.provision_extractor import _extract_regex
-        from policylab.v2.ingest.entity_graph import build_entity_graph
-        from policylab.v2.ingest.spec_builder import build_spec
+        from swarmcast.v2.ingest.document_loader import load_text_string
+        from swarmcast.v2.ingest.provision_extractor import _extract_regex
+        from swarmcast.v2.ingest.entity_graph import build_entity_graph
+        from swarmcast.v2.ingest.spec_builder import build_spec
 
         def _td(scope_val):
             doc = load_text_string(f"Civil penalties. Applies to {scope_val} developers.")
@@ -401,10 +401,10 @@ class TestSpecBuilder:
 
     def test_num_rounds_includes_grace_period(self):
         """num_rounds must be at least grace_period_quarters + 4."""
-        from policylab.v2.ingest.document_loader import load_text_string
-        from policylab.v2.ingest.provision_extractor import _extract_regex
-        from policylab.v2.ingest.entity_graph import build_entity_graph
-        from policylab.v2.ingest.spec_builder import build_spec
+        from swarmcast.v2.ingest.document_loader import load_text_string
+        from swarmcast.v2.ingest.provision_extractor import _extract_regex
+        from swarmcast.v2.ingest.entity_graph import build_entity_graph
+        from swarmcast.v2.ingest.spec_builder import build_spec
         doc = load_text_string("Civil penalties. 12-month implementation period.")
         ex = _extract_regex(doc)
         g = build_entity_graph(ex)
@@ -417,10 +417,10 @@ class TestSpecBuilder:
 
     def test_low_confidence_widens_severity_sweep(self):
         """Fix 13b: low confidence extraction must widen the severity sweep to ±1.0."""
-        from policylab.v2.ingest.document_loader import load_text_string
-        from policylab.v2.ingest.provision_extractor import _extract_regex, ExtractedField
-        from policylab.v2.ingest.entity_graph import build_entity_graph
-        from policylab.v2.ingest.spec_builder import build_spec
+        from swarmcast.v2.ingest.document_loader import load_text_string
+        from swarmcast.v2.ingest.provision_extractor import _extract_regex, ExtractedField
+        from swarmcast.v2.ingest.entity_graph import build_entity_graph
+        from swarmcast.v2.ingest.spec_builder import build_spec
         doc = load_text_string("Some vague document without clear regulatory language.")
         ex = _extract_regex(doc)
         # Force all core fields to low confidence
@@ -449,7 +449,7 @@ class TestSpecBuilder:
     def test_base_distribution_documented_as_assumed(self):
         """Fix 13a: _BASE_DISTRIBUTION must be documented as [ASSUMED]."""
         import inspect
-        from policylab.v2.ingest import spec_builder
+        from swarmcast.v2.ingest import spec_builder
         src = inspect.getsource(spec_builder)
         assert "[ASSUMED]" in src, "_BASE_DISTRIBUTION must be tagged [ASSUMED]"
 
@@ -480,13 +480,13 @@ class TestIngestPipeline:
 
     def test_ingest_text_returns_ingest_result(self):
         """ingest_text() must return an IngestResult."""
-        from policylab.v2.ingest.pipeline import ingest_text, IngestResult
+        from swarmcast.v2.ingest.pipeline import ingest_text, IngestResult
         result = ingest_text(self.SB53_TEXT, name="SB-53 test", verbose=False)
         assert isinstance(result, IngestResult)
 
     def test_ingest_result_has_spec(self):
         """IngestResult must have a PolicySpec with severity in [1, 5]."""
-        from policylab.v2.ingest.pipeline import ingest_text
+        from swarmcast.v2.ingest.pipeline import ingest_text
         result = ingest_text(self.SB53_TEXT, verbose=False)
         assert 1.0 <= result.spec.severity <= 5.0, (
             f"severity {result.spec.severity} out of [1, 5]"
@@ -494,7 +494,7 @@ class TestIngestPipeline:
 
     def test_ingest_result_config_has_required_keys(self):
         """config must contain all keys needed by HybridSimConfig."""
-        from policylab.v2.ingest.pipeline import ingest_text
+        from swarmcast.v2.ingest.pipeline import ingest_text
         result = ingest_text(self.SB53_TEXT, verbose=False)
         required = {"n_population", "num_rounds", "type_distribution",
                     "source_jurisdiction", "compute_cost_factor"}
@@ -503,14 +503,14 @@ class TestIngestPipeline:
 
     def test_ingest_result_ready_to_simulate(self):
         """SB-53 text has enough content to be ready_to_simulate()."""
-        from policylab.v2.ingest.pipeline import ingest_text
+        from swarmcast.v2.ingest.pipeline import ingest_text
         result = ingest_text(self.SB53_TEXT, verbose=False)
         # ready_to_simulate() returns bool — just ensure it doesn't crash
         assert isinstance(result.ready_to_simulate(), bool)
 
     def test_ingest_type_distribution_sums_to_one(self):
         """type_distribution in config must sum to 1.0."""
-        from policylab.v2.ingest.pipeline import ingest_text
+        from swarmcast.v2.ingest.pipeline import ingest_text
         result = ingest_text(self.SB53_TEXT, verbose=False)
         td = result.config["type_distribution"]
         total = sum(td.values())
@@ -518,7 +518,7 @@ class TestIngestPipeline:
 
     def test_ingest_extracts_compute_threshold(self):
         """10^26 FLOPS in SB-53 text must be extracted."""
-        from policylab.v2.ingest.pipeline import ingest_text
+        from swarmcast.v2.ingest.pipeline import ingest_text
         result = ingest_text(self.SB53_TEXT, verbose=False)
         thresh = result.extraction.compute_threshold_flops.value
         assert thresh is not None, "Compute threshold must be extracted from SB-53 text"
@@ -526,7 +526,7 @@ class TestIngestPipeline:
 
     def test_ingest_sb53_jurisdiction_is_us(self):
         """SB-53 (California) must be detected as US jurisdiction."""
-        from policylab.v2.ingest.pipeline import ingest_text
+        from swarmcast.v2.ingest.pipeline import ingest_text
         result = ingest_text(self.SB53_TEXT, verbose=False)
         assert result.config.get("source_jurisdiction") == "US", (
             f"Expected US, got {result.config.get('source_jurisdiction')}"
@@ -534,13 +534,13 @@ class TestIngestPipeline:
 
     def test_ingest_eu_jurisdiction_detected(self):
         """EU regulation text must detect EU jurisdiction."""
-        from policylab.v2.ingest.pipeline import ingest_text
+        from swarmcast.v2.ingest.pipeline import ingest_text
         result = ingest_text(self.EU_TEXT, verbose=False)
         assert result.config.get("source_jurisdiction") == "EU"
 
     def test_ingest_compute_cost_factor_sb53(self):
         """SB-53 with 10^26 threshold must get CCF = 2.0."""
-        from policylab.v2.ingest.pipeline import ingest_text
+        from swarmcast.v2.ingest.pipeline import ingest_text
         result = ingest_text(self.SB53_TEXT, verbose=False)
         assert result.spec.compute_cost_factor >= 2.0, (
             f"SB-53 CCF should be >= 2.0, got {result.spec.compute_cost_factor}"
@@ -548,7 +548,7 @@ class TestIngestPipeline:
 
     def test_ingest_compute_cost_factor_eu_gpai(self):
         """EU text with 10^25 threshold must get CCF >= 3.0."""
-        from policylab.v2.ingest.pipeline import ingest_text
+        from swarmcast.v2.ingest.pipeline import ingest_text
         result = ingest_text(self.EU_TEXT, verbose=False)
         assert result.spec.compute_cost_factor >= 3.0, (
             f"EU GPAI CCF should be >= 3.0, got {result.spec.compute_cost_factor}"
@@ -556,7 +556,7 @@ class TestIngestPipeline:
 
     def test_ingest_traceability_report_not_empty(self):
         """traceability_report() must produce non-empty output."""
-        from policylab.v2.ingest.pipeline import ingest_text
+        from swarmcast.v2.ingest.pipeline import ingest_text
         result = ingest_text(self.SB53_TEXT, verbose=False)
         report = result.traceability_report()
         assert len(report) > 200, "Traceability report is too short"
@@ -564,7 +564,7 @@ class TestIngestPipeline:
 
     def test_ingest_entity_graph_has_nodes(self):
         """Entity graph must have nodes after ingestion."""
-        from policylab.v2.ingest.pipeline import ingest_text
+        from swarmcast.v2.ingest.pipeline import ingest_text
         result = ingest_text(self.SB53_TEXT, verbose=False)
         assert len(result.graph) >= 3, (
             f"Entity graph has too few nodes: {len(result.graph)}"
@@ -572,14 +572,14 @@ class TestIngestPipeline:
 
     def test_ingest_warnings_is_list(self):
         """warnings must be a list (not None, not crash)."""
-        from policylab.v2.ingest.pipeline import ingest_text
+        from swarmcast.v2.ingest.pipeline import ingest_text
         result = ingest_text("Simple text.", verbose=False)
         assert isinstance(result.warnings, list)
 
     def test_ingest_and_simulate_has_base_url_param(self):
         """Fix 7: ingest_and_simulate must accept base_url parameter."""
         import inspect
-        from policylab.v2.ingest.pipeline import ingest_and_simulate
+        from swarmcast.v2.ingest.pipeline import ingest_and_simulate
         params = inspect.signature(ingest_and_simulate).parameters
         assert "base_url" in params, (
             "ingest_and_simulate missing base_url parameter — Fix 7"
@@ -588,8 +588,8 @@ class TestIngestPipeline:
     def test_ingest_end_to_end_with_simulation(self):
         """Full pipeline: ingest_text → HybridSimConfig → run_hybrid_simulation."""
         import warnings as _w; _w.filterwarnings("ignore")
-        from policylab.v2.ingest.pipeline import ingest_text
-        from policylab.v2.simulation.hybrid_loop import HybridSimConfig, run_hybrid_simulation
+        from swarmcast.v2.ingest.pipeline import ingest_text
+        from swarmcast.v2.simulation.hybrid_loop import HybridSimConfig, run_hybrid_simulation
         result = ingest_text(self.SB53_TEXT, verbose=False)
         # result.config already contains n_population and num_rounds.
         # Override them separately to avoid duplicate keyword arguments.
@@ -616,7 +616,7 @@ class TestProbabilisticTrigger:
 
     def test_deterministic_for_same_inputs(self):
         """Fix 5: should_fire must return same result for identical (round_num, prob)."""
-        from policylab.v2.simulation.events import ProbabilisticTrigger
+        from swarmcast.v2.simulation.events import ProbabilisticTrigger
         results = [
             ProbabilisticTrigger(probability=0.5).should_fire(round_num=3, stocks=None, pop=None)
             for _ in range(10)
@@ -628,7 +628,7 @@ class TestProbabilisticTrigger:
 
     def test_different_rounds_can_give_different_results(self):
         """Different round numbers should (in general) give different outcomes."""
-        from policylab.v2.simulation.events import ProbabilisticTrigger
+        from swarmcast.v2.simulation.events import ProbabilisticTrigger
         # With p=0.5, rounds 1-20 should not all give the same result
         results = [
             ProbabilisticTrigger(probability=0.5).should_fire(round_num=r, stocks=None, pop=None)
@@ -639,14 +639,14 @@ class TestProbabilisticTrigger:
 
     def test_zero_probability_never_fires(self):
         """probability=0 must never fire."""
-        from policylab.v2.simulation.events import ProbabilisticTrigger
+        from swarmcast.v2.simulation.events import ProbabilisticTrigger
         t = ProbabilisticTrigger(probability=0.0)
         results = [t.should_fire(r, None, None) for r in range(1, 20)]
         assert not any(results), "probability=0 must never fire"
 
     def test_max_fires_respected(self):
         """max_fires=1 must fire at most once across all rounds."""
-        from policylab.v2.simulation.events import ProbabilisticTrigger
+        from swarmcast.v2.simulation.events import ProbabilisticTrigger
         t = ProbabilisticTrigger(probability=1.0, max_fires=1)
         fires = sum(1 for r in range(1, 20) if t.should_fire(r, None, None))
         assert fires <= 1, f"max_fires=1 but fired {fires} times"
@@ -660,21 +660,21 @@ class TestAnalysisPolicySpec:
 
     def test_comparison_policy_defined(self):
         """Fix 12: ComparisonPolicy must be defined in analysis.py."""
-        from policylab.v2.analysis import ComparisonPolicy
+        from swarmcast.v2.analysis import ComparisonPolicy
         p = ComparisonPolicy(name="test", description="desc", severity=3.0)
         assert p.name == "test"
         assert p.severity == 3.0
 
     def test_policysec_alias_works(self):
         """Fix 12: PolicySpec alias must work for backwards compatibility."""
-        from policylab.v2.analysis import PolicySpec
+        from swarmcast.v2.analysis import PolicySpec
         p = PolicySpec(name="compat", description="desc", severity=2.0)
         assert p.name == "compat"
 
     def test_parser_policyspec_distinct(self):
         """The canonical PolicySpec from parser.py must have justification attribute."""
-        from policylab.v2.policy.parser import PolicySpec as ParserSpec
-        from policylab.v2.analysis import PolicySpec as AnalysisSpec
+        from swarmcast.v2.policy.parser import PolicySpec as ParserSpec
+        from swarmcast.v2.analysis import PolicySpec as AnalysisSpec
         p = ParserSpec(name="x", description="", severity=1.0, justification=[])
         assert hasattr(p, "justification"), "Parser PolicySpec must have justification"
         # Analysis PolicySpec does NOT have justification — that's the distinction
@@ -714,7 +714,7 @@ class TestPyprojectToml:
 
     def test_path_imported_in_provision_extractor(self):
         """Fix 2: provision_extractor.py must import Path."""
-        with open(os.path.join(BASE, "policylab", "v2", "ingest",
+        with open(os.path.join(BASE, "swarmcast", "v2", "ingest",
                                "provision_extractor.py")) as f:
             src = f.read()
         assert "from pathlib import Path" in src, (

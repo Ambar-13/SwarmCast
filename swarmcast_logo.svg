@@ -1,4 +1,4 @@
-<svg width="100%" viewBox="0 0 680 220" style="background:#FDFAF6; border-radius:20px; padding:28px 36px; box-sizing:border-box;" xmlns="http://www.w3.org/2000/svg">
+<svg width="100%" viewBox="0 0 820 220" style="background:#FDFAF6; border-radius:20px; padding:28px 36px; box-sizing:border-box;" xmlns="http://www.w3.org/2000/svg">
 
   <!-- Antenna -->
   <line x1="120" y1="20" x2="120" y2="44" stroke="#A82020" stroke-width="2" stroke-linecap="round"/>
@@ -48,8 +48,8 @@
   <rect x="86" y="195" width="32" height="10" rx="5" fill="#6B1414"/>
   <rect x="122" y="195" width="32" height="10" rx="5" fill="#6B1414"/>
 
-  <!-- Wordmark: single-line "Swarmcast" centered on robot -->
-  <text x="228" y="132" font-family="system-ui, sans-serif" font-weight="500" font-size="62" fill="#1A1208" letter-spacing="-0.03em">Swarmcast</text>
+  <!-- Wordmark -->
+  <text x="228" y="132" font-family="system-ui, sans-serif" font-weight="500" font-size="62" fill="#1A1208" letter-spacing="-0.03em">SwarmCast</text>
 
   <!-- Tagline -->
   <text x="230" y="162" font-family="system-ui, sans-serif" font-weight="400" font-size="14" fill="#A82020" letter-spacing="0.04em">macro behavioral simulation · swarm intelligence</text>
