@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart2, Scale, Upload, Zap } from "lucide-react";
-
-const TABS = [
-  { href: "/analyze",   label: "Analyze",  icon: BarChart2 },
-  { href: "/upload",    label: "Upload",   icon: Upload    },
-  { href: "/compare",   label: "Compare",  icon: Scale     },
-  { href: "/influence", label: "Influence",icon: Zap       },
-] as const;
+import { NAV_TABS } from "@/lib/nav-tabs";
 
 export function MobileNav() {
   const pathname = usePathname();
@@ -19,7 +12,7 @@ export function MobileNav() {
       className="fixed bottom-0 left-0 right-0 z-40 flex h-16 items-center border-t bg-[var(--cream-50)] px-2 lg:hidden"
       style={{ borderColor: "var(--border-warm)" }}
     >
-      {TABS.map(({ href, label, icon: Icon }) => {
+      {NAV_TABS.map(({ href, label, icon: Icon }) => {
         const active = pathname.startsWith(href);
         return (
           <Link

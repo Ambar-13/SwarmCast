@@ -1,8 +1,9 @@
+import type { ReactNode } from "react";
 import { TopNav } from "@/components/layout/TopNav";
 import { MobileNav } from "@/components/layout/MobileNav";
 
 interface Props {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function AppShell({ children }: Props) {

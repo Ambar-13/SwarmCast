@@ -3,15 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart2, Scale, ShieldCheck, Upload, Zap } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { CommandPalette } from "@/components/ui/CommandPalette";
-
-const NAV_TABS = [
-  { href: "/analyze",   label: "Analyze",  icon: BarChart2 },
-  { href: "/upload",    label: "Upload",   icon: Upload    },
-  { href: "/compare",   label: "Compare",  icon: Scale     },
-  { href: "/influence", label: "Influence",icon: Zap       },
-] as const;
+import { NAV_TABS } from "@/lib/nav-tabs";
 
 export function TopNav() {
   const pathname = usePathname();
