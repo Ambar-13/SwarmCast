@@ -198,6 +198,42 @@ body::after {
   50%       { transform: translateY(-6px); }
 }
 
+/* Simple opacity-only fade — no layout shift, safe for Recharts containers */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Toast slide-in from right */
+@keyframes slideInRight {
+  from { transform: translateX(110%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* Banner slide-in from left */
+@keyframes slideInLeft {
+  from { transform: translateX(-110%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+/* Radar sweep for simulation loading animation */
+@keyframes radarSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Pulse ring for simulation loading */
+@keyframes pulseRing {
+  0%   { transform: scale(0.6); opacity: 0.6; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Dot pop-in */
+@keyframes dotPop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 @layer utilities {
   .text-balance  { text-wrap: balance; }
   .font-mono-num { @apply metric-num; }

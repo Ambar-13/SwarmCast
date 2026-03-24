@@ -14,6 +14,27 @@ from api.config import settings
 router = APIRouter()
 
 
+@router.get("/swarm/smoke-test")
+async def swarm_smoke_test() -> dict:
+    """Directional smoke test: run EU AI Act swarm and check calibration direction.
+
+    Expected: startups burdened (factor > 1.0), frontier labs manageable (factor < 1.8),
+    startup relocation pressure medium-high. Requires OPENAI_API_KEY in environment.
+    """
+    from api.services.swarm_calibration_service import smoke_test_eu_ai_act
+
+    api_key = settings.get_openai_key()
+    if not api_key:
+        raise HTTPException(
+            status_code=400,
+            detail="OPENAI_API_KEY or POLICYLAB_OPENAI_API_KEY not set.",
+        )
+    try:
+        return await smoke_test_eu_ai_act(api_key=api_key)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
 @router.post("/simulate", response_model=SimulateResponse)
 async def simulate(req: SimulateRequest) -> SimulateResponse:
     try:

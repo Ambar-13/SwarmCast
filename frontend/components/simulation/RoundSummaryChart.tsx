@@ -3,8 +3,8 @@
 import { useState } from "react";
 import {
   Area,
-  AreaChart,
   CartesianGrid,
+  ComposedChart,
   Line,
   ResponsiveContainer,
   Tooltip,
@@ -36,7 +36,7 @@ interface Props {
 
 export function RoundSummaryChart({ roundSummaries, bands }: Props) {
   const [active, setActive] = useState<Set<MetricKey>>(
-    new Set<MetricKey>(["compliance_rate", "relocation_rate"]),
+    new Set<MetricKey>(["compliance_rate", "relocation_rate", "ai_investment_index", "enforcement_contact_rate"]),
   );
 
   const data = buildChartData(roundSummaries, bands);
@@ -85,7 +85,14 @@ export function RoundSummaryChart({ roundSummaries, bands }: Props) {
                       }
                 }
               >
-                <div className="text-xs font-semibold">{label}</div>
+                <div className="flex items-center gap-1">
+                  {isActive && (
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M1.5 5L4 7.5L8.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                  <span className="text-xs font-semibold">{label}</span>
+                </div>
                 <div className="text-[10px] opacity-80">{note}</div>
               </button>
             );
@@ -98,7 +105,7 @@ export function RoundSummaryChart({ roundSummaries, bands }: Props) {
   style={{ background: "var(--cream-100)", borderColor: "var(--border-warm)" }}
 >
         <ResponsiveContainer width="100%" height={340}>
-          <AreaChart data={data} margin={{ top: 12, right: 16, bottom: 0, left: -18 }}>
+          <ComposedChart data={data} margin={{ top: 12, right: 16, bottom: 0, left: -18 }}>
             <defs>
               <linearGradient id="compliance-fill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%"  stopColor="#8B1A1A" stopOpacity={0.18} />
@@ -150,10 +157,11 @@ export function RoundSummaryChart({ roundSummaries, bands }: Props) {
                 stroke={color}
                 dot={false}
                 strokeWidth={2.75}
+                isAnimationActive={false}
                 activeDot={{ r: 5, fill: color, stroke: "var(--cream-50)", strokeWidth: 2 }}
               />
             ))}
-          </AreaChart>
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
     </div>

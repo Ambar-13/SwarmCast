@@ -114,20 +114,16 @@ export function AgentNetworkIdle({ style }: { style?: CSSProperties }) {
           <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="rgba(26,18,8,0.12)" />
         </filter>
 
-        {/* Dash animation pattern per edge */}
-        {EDGES.map((e) => {
-          const len = edgeLength(e);
-          const dash = Math.max(len * 0.22, 8);
-          const gap  = len - dash;
-          return (
-            <style key={e.from + e.to}>{`
-              @keyframes dash-${e.from}-${e.to} {
-                from { stroke-dashoffset: ${len + dash}; }
-                to   { stroke-dashoffset: 0; }
-              }
-            `}</style>
-          );
-        })}
+        {/* All keyframes in a single <style> — multiple insertions each force a full style recalc */}
+        <style>{`
+          @keyframes pulse-node{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.12);opacity:.85}}
+          @keyframes pulse-halo{0%,100%{transform:scale(1);opacity:.18}50%{transform:scale(1.4);opacity:.05}}
+          ${EDGES.map((e) => {
+            const len  = edgeLength(e);
+            const dash = Math.max(len * 0.22, 8);
+            return `@keyframes dash-${e.from}-${e.to}{from{stroke-dashoffset:${len + dash}}to{stroke-dashoffset:0}}`;
+          }).join("")}
+        `}</style>
       </defs>
 
       {/* ── Edges ─────────────────────────────────────────────── */}
@@ -207,17 +203,6 @@ export function AgentNetworkIdle({ style }: { style?: CSSProperties }) {
         );
       })}
 
-      {/* ── CSS keyframes for node pulse ──────────────────────── */}
-      <style>{`
-        @keyframes pulse-node {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50%       { transform: scale(1.12); opacity: 0.85; }
-        }
-        @keyframes pulse-halo {
-          0%, 100% { transform: scale(1); opacity: 0.18; }
-          50%       { transform: scale(1.4); opacity: 0.05; }
-        }
-      `}</style>
     </svg>
   );
 }

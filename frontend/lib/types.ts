@@ -72,11 +72,59 @@ export interface SimConfigRequest {
   type_distribution: Record<string, number> | null;
 }
 
+// ── Swarm elicitation ─────────────────────────────────────────────────────────
+
+export type SwarmConfidence = "high" | "medium" | "low";
+export type SwarmPrimaryAction = "comply" | "relocate" | "evade" | "lobby";
+export type SwarmRelocationPressure = "low" | "medium" | "high";
+
+export interface SwarmAgentResponse {
+  persona: string;
+  agent_type: string;
+  compliance_factor: number;
+  primary_action: SwarmPrimaryAction;
+  relocation_pressure: SwarmRelocationPressure;
+  reasoning: string;
+}
+
+export interface SwarmTypeResult {
+  agent_type: string;
+  n_agents: number;
+  mean_compliance_factor: number;
+  compliance_factor_cv: number;
+  dominant_action: SwarmPrimaryAction;
+  relocation_pressure_dist: Record<SwarmRelocationPressure, number>;
+  confidence: SwarmConfidence;
+  applied_lambda_multiplier: number;
+  applied_threshold_shift: number;
+  agents: SwarmAgentResponse[];
+}
+
+export interface ParameterAdjustments {
+  lambda_multipliers: Record<string, number>;
+  threshold_shifts: Record<string, number>;
+}
+
+export interface SwarmResult {
+  epistemic_tag: "SWARM-ELICITED";
+  policy_name: string;
+  n_total_agents: number;
+  type_results: SwarmTypeResult[];
+  parameter_adjustments: ParameterAdjustments;
+  llm_model: string;
+  elapsed_seconds: number;
+  warning: string;
+}
+
+// ── Simulation ────────────────────────────────────────────────────────────────
+
 export interface SimulateRequest {
   policy_name: string;
   policy_description: string;
   policy_severity: number;
   config: SimConfigRequest;
+  use_swarm_elicitation?: boolean;
+  openai_api_key?: string;
 }
 
 export interface RoundSummary {
@@ -117,6 +165,7 @@ export interface SimulateResponse {
   jurisdiction_summary: Record<string, { company_count?: number; burden?: number }>;
   run_metadata: RunMetadata;
   event_log: unknown[];
+  swarm_result: SwarmResult | null;
 }
 
 // ── Upload / extraction ───────────────────────────────────────────────────────

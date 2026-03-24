@@ -1,9 +1,15 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { FinalStocksGrid } from "@/components/simulation/FinalStocksGrid";
 import { JurisdictionFlowDiagram } from "@/components/simulation/JurisdictionFlowDiagram";
+import { MetricTrendCharts } from "@/components/simulation/MetricTrendCharts";
 import { NetworkStatsPanel } from "@/components/simulation/NetworkStatsPanel";
 import { PopulationSummaryBar } from "@/components/simulation/PopulationSummaryBar";
 import { RoundSummaryChart } from "@/components/simulation/RoundSummaryChart";
 import { SMMTable } from "@/components/simulation/SMMTable";
+import { SwarmElicitationPanel } from "@/components/simulation/SwarmElicitationPanel";
+import { AgentNetworkViz } from "@/components/simulation/AgentNetworkViz";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 import { ScrambleText } from "@/components/ui/ScrambleText";
 import { formatDurationMs, formatPct } from "@/lib/format";
@@ -12,22 +18,41 @@ import type { ConfidenceBand, SimulateResponse } from "@/lib/types";
 interface Props {
   result: SimulateResponse;
   comparisonResult?: SimulateResponse;
-  complianceBands?: ConfidenceBand[];
+  /** All evidence-pack bands, keyed by metric name (compliance_rate, relocation_rate, …) */
+  allBands?: Record<string, ConfidenceBand[]>;
 }
 
-export function ResultsPanel({ result, comparisonResult, complianceBands }: Props) {
+// Placeholder while Recharts charts are being deferred
+function ChartSkeleton({ height = 220 }: { height?: number }) {
+  return (
+    <div
+      className="animate-pulse rounded-2xl"
+      style={{ height, background: "var(--cream-200)" }}
+    />
+  );
+}
+
+export function ResultsPanel({ result, comparisonResult, allBands }: Props) {
   const pop    = result.final_population_summary;
   const stocks = result.final_stocks;
+
+  // Defer all Recharts charts to after the first paint so that navigating
+  // to this page feels instant. Without this, 4 simultaneous ResponsiveContainers
+  // each fire ResizeObserver callbacks that cascade into 2–3s of main-thread jank.
+  const [chartsReady, setChartsReady] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setChartsReady(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   return (
     <div
       className="space-y-4"
-      style={{ animation: "revealUp 480ms cubic-bezier(0.23, 1, 0.32, 1) both" }}
+      style={{ animation: "fadeIn 320ms ease both" }}
     >
       {/* ── Verdict header ──────────────────────────────────────── */}
       <div
         className="card-raised overflow-hidden p-6 md:p-8"
-        style={{ animation: "slideUpFade 380ms ease both" }}
       >
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-2xl space-y-3">
@@ -110,6 +135,11 @@ export function ResultsPanel({ result, comparisonResult, complianceBands }: Prop
         </div>
       </div>
 
+      {/* ── Swarm elicitation panel (only when swarm was used) ── */}
+      {result.swarm_result && (
+        <SwarmElicitationPanel swarm={result.swarm_result} />
+      )}
+
       {/* ── 5 stat cards ────────────────────────────────────────── */}
       <FinalStocksGrid
         finalStocks={stocks}
@@ -137,13 +167,31 @@ export function ResultsPanel({ result, comparisonResult, complianceBands }: Prop
         />
       </div>
 
-      {/* ── Chart + SMM table ───────────────────────────────────── */}
+      {/* ── 3 separate metric mini-charts — deferred to avoid ResizeObserver jank ── */}
+      {chartsReady ? (
+        <MetricTrendCharts
+          roundSummaries={result.round_summaries}
+          bands={allBands}
+        />
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-3">
+          <ChartSkeleton height={230} />
+          <ChartSkeleton height={230} />
+          <ChartSkeleton height={230} />
+        </div>
+      )}
+
+      {/* ── Combined trajectory + SMM table ─────────────────────────────────── */}
       <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
         <div className="card-warm p-5 md:p-6">
-          <RoundSummaryChart
-            roundSummaries={result.round_summaries}
-            bands={complianceBands}
-          />
+          {chartsReady ? (
+            <RoundSummaryChart
+              roundSummaries={result.round_summaries}
+              bands={allBands?.compliance_rate}
+            />
+          ) : (
+            <ChartSkeleton height={340} />
+          )}
         </div>
         <div className="card-warm p-5 md:p-6">
           <SMMTable
@@ -151,6 +199,15 @@ export function ResultsPanel({ result, comparisonResult, complianceBands }: Prop
             distanceToGdpr={result.smm_distance_to_gdpr}
           />
         </div>
+      </div>
+
+      {/* ── Agent network visualization ──────────────────────────── */}
+      <div className="card-warm p-5 md:p-6">
+        <AgentNetworkViz
+          swarmResult={result.swarm_result}
+          pop={result.final_population_summary}
+          nPopulation={result.run_metadata.n_population}
+        />
       </div>
 
       {/* ── Run metadata footer ─────────────────────────────────── */}
@@ -188,6 +245,12 @@ export function ResultsPanel({ result, comparisonResult, complianceBands }: Prop
           >
             {result.run_metadata.n_population.toLocaleString()}
           </span>
+        </span>
+        <span
+          title="Vectorised numpy engine runs 10k agents in µs. The displayed time includes network and animation padding."
+          style={{ cursor: "help", borderBottom: "1px dotted var(--ink-300)" }}
+        >
+          ⚡ numpy-vectorised
         </span>
       </div>
     </div>

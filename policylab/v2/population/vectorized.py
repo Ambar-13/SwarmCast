@@ -134,7 +134,21 @@ class PopulationArray:
         type_distribution: dict[str, float] | None = None,
         policy_severity: float = 3.0,
         seed: int = 42,
+        parameter_overrides: dict | None = None,
     ) -> "PopulationArray":
+        """parameter_overrides — optional dict from swarm elicitation service.
+
+        Expected shape (all keys optional):
+          {
+            "lambda_multipliers": {"startup": 1.2, "large_company": 0.9, ...},
+            "threshold_shifts":   {"startup": 8.0, "frontier_lab": -5.0, ...},
+          }
+
+        Multipliers are clamped to [0.70, 1.30] (±30% of empirical baseline).
+        Threshold shifts are clamped to [−15, +15] burden units.
+        Values are tagged [SWARM-ELICITED] by the calling service — do not
+        treat them as having the same epistemic standing as the GDPR anchors.
+        """
         """Generate n agents from calibrated distributions and return a ready PopulationArray.
 
         All continuous arrays are float32. float64 would double memory footprint
@@ -192,13 +206,26 @@ class PopulationArray:
         risk_tolerance = rng.beta(2.0, 5.0, n).astype(np.float32)
 
         # Compliance lambdas by type
+        # Base lambdas from GDPR calibration
+        _lambda_map = dict(_LAMBDA)
+        _thresh_map = dict(_RELOC_THRESH)
+
+        # Apply swarm-elicited overrides if provided (bounded ±30% / ±15 units)
+        if parameter_overrides:
+            for atype, mult in (parameter_overrides.get("lambda_multipliers") or {}).items():
+                if atype in _lambda_map:
+                    _lambda_map[atype] *= max(0.70, min(1.30, float(mult)))
+            for atype, shift in (parameter_overrides.get("threshold_shifts") or {}).items():
+                if atype in _thresh_map:
+                    _thresh_map[atype] += max(-15.0, min(15.0, float(shift)))
+
         lambda_arr = np.array([
-            _LAMBDA[_TYPES[ti]] for ti in type_idx
+            _lambda_map[_TYPES[ti]] for ti in type_idx
         ], dtype=np.float32)
 
         # Relocation thresholds by type, adjusted for risk
         thresh_base = np.array([
-            _RELOC_THRESH[_TYPES[ti]] for ti in type_idx
+            _thresh_map[_TYPES[ti]] for ti in type_idx
         ], dtype=np.float32)
         # High risk tolerance → lower threshold (relocates sooner)
         thresh_adjusted = thresh_base - 10.0 * (risk_tolerance - 0.5)

@@ -2,14 +2,16 @@
 
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { simulateUpload } from "@/lib/api-client";
 import { PolicyParamPanel } from "@/components/policy/PolicyParamPanel";
 import { ResultsPanel } from "@/components/simulation/ResultsPanel";
 import { EpistemicBadge } from "@/components/simulation/EpistemicBadge";
 import { SimLoadingSkeleton } from "@/components/simulation/SimLoadingSkeleton";
+import { useAnalyzeStore, useCompareStore, makeId } from "@/lib/store";
 import type { UploadResponse, EpistemicTier } from "@/lib/types";
-import { Upload } from "lucide-react";
+import { Upload, ArrowRight, GitCompareArrows } from "lucide-react";
 
 const ALLOWED_EXTS = [".pdf", ".txt", ".md", ".docx"];
 const MAX_BYTES = 20 * 1024 * 1024;
@@ -74,6 +76,45 @@ export default function UploadPage() {
   const [error, setError] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState("gpt-4o");
+  const analyzeStore = useAnalyzeStore();
+  const compareStore = useCompareStore();
+  const router = useRouter();
+
+  function handleOpenInSimulator() {
+    if (!result) return;
+    analyzeStore.setFromSpecWithResult(result.spec, result.result);
+    router.push("/analyze");
+  }
+
+  function handleAddToCompare() {
+    if (!result) return;
+    compareStore.addSlotWithResult({
+      id: makeId(),
+      policyName: result.spec.name,
+      policyDescription: result.spec.description,
+      policySeverity: result.spec.severity,
+      simConfig: {
+        n_population: result.spec.recommended_n_population,
+        num_rounds: result.spec.recommended_num_rounds,
+        spillover_factor: 0.5,
+        seed: 42,
+        use_network: true,
+        use_vectorized: true,
+        source_jurisdiction: "EU",
+        destination_jurisdictions: ["US", "UK", "Singapore", "UAE"],
+        relocation_temperature: 0.1,
+        adversarial_injection_rate: 0,
+        adversarial_injection_direction: 1,
+        adversarial_injection_magnitude: 0.08,
+        adversarial_injection_start_round: 1,
+        compute_cost_factor: result.spec.compute_cost_factor,
+        hk_epsilon: 1.0,
+        type_distribution: null,
+      },
+      result: result.result,
+    });
+    router.push("/compare");
+  }
 
   const onDrop = useCallback(
     async (accepted: File[]) => {
@@ -191,6 +232,24 @@ export default function UploadPage() {
               <p className="text-[10px]" style={{ color: "var(--ink-400)" }}>
                 {result.confidence_summary}
               </p>
+
+              {/* ── Send to other pages ─────────────────────────────── */}
+              <div className="space-y-2 pt-1">
+                <button
+                  onClick={handleOpenInSimulator}
+                  className="btn-primary w-full py-2.5 text-sm"
+                >
+                  Open in Simulator
+                  <ArrowRight size={14} />
+                </button>
+                <button
+                  onClick={handleAddToCompare}
+                  className="btn-secondary w-full py-2.5 text-sm"
+                >
+                  <GitCompareArrows size={14} />
+                  Add to Compare
+                </button>
+              </div>
             </div>
           )}
 
@@ -210,7 +269,7 @@ export default function UploadPage() {
 
         {/* Right panel */}
         <div className="flex-1 p-6 overflow-y-auto">
-          {loading && <SimLoadingSkeleton />}
+          {loading && <SimLoadingSkeleton mode="upload" />}
 
           {!loading && result && (
             <div className="space-y-6">

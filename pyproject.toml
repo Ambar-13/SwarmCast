@@ -1,6 +1,6 @@
 [project]
 name = "policylab"
-version = "0.1.0"
+version = "1.0.0"
 description = "PolicyLab — stress-test AI regulations, war-game incidents, discover governance blind spots"
 authors = [{ name = "Ambar" }]
 requires-python = ">=3.10"
@@ -9,7 +9,6 @@ dependencies = [
     "openai>=1.0.0",
     "numpy",
     "sentence-transformers",
-    "streamlit>=1.30.0",
     "plotly>=5.0.0",
     "reportlab>=4.0.0",
     "scipy>=1.10.0",

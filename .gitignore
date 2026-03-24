@@ -24,7 +24,13 @@ ENV/
 
 # Testing
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.nox/
+.pyre/
 .coverage
+.coverage.*
 htmlcov/
 .tox/
 nosetests.xml
@@ -37,6 +43,7 @@ coverage.xml
 # Editors
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
@@ -60,3 +67,9 @@ runs/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Runtime / logs
+*.log
+*.out
+*.err
+*.pid

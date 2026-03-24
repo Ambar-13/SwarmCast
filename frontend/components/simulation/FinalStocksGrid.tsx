@@ -72,8 +72,36 @@ export function FinalStocksGrid({
     comp?: Record<string, number>,
   ) => (comp ? (comp[key] ?? 0) - (base[key] ?? 0) : null);
 
+  // Detect floor conditions to show model-limitation disclosure
+  const trustFloor = (finalStocks.public_trust ?? 1) === 0;
+  const investFloor = (finalStocks.ai_investment_index ?? 1) === 0;
+  const showFloorNote = trustFloor || investFloor;
+
   return (
-    <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+    <section className="space-y-3">
+    {showFloorNote && (
+      <div
+        className="flex items-start gap-2.5 rounded-xl px-3.5 py-3 text-xs leading-5"
+        style={{
+          background:   "rgba(180,30,40,0.05)",
+          border:       "1px solid rgba(180,30,40,0.15)",
+          color:        "var(--ink-500)",
+        }}
+      >
+        <span style={{ color: "var(--crimson-700)", fontSize: 14, lineHeight: 1 }}>⚠</span>
+        <span>
+          <strong style={{ color: "var(--ink-700)" }}>Model floor reached</strong>
+          {trustFloor && investFloor && " — public trust and investment both hit 0.0. "}
+          {trustFloor && !investFloor && " — public trust hit 0.0. "}
+          {!trustFloor && investFloor && " — AI investment hit 0.0. "}
+          This is the stock depletion model hitting its lower bound over many rounds at high severity,
+          not a literal finding. In practice {trustFloor ? "trust" : ""}{trustFloor && investFloor ? " and " : ""}{investFloor ? "investment" : ""} would
+          floor above zero (safety advocates support bans; below-threshold firms still attract capital).
+          {(finalPopulationSummary.evasion_rate ?? 0) === 0 && " Compute-reporting evasion is also likely underestimated — the model's evasion pathway uses a different trigger condition."}
+        </span>
+      </div>
+    )}
+    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
       <StatCard
         index={0}
         label="Compliance rate"
@@ -123,6 +151,7 @@ export function FinalStocksGrid({
             : null
         }
       />
+    </div>
     </section>
   );
 }

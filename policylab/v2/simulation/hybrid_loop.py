@@ -89,6 +89,12 @@ class HybridSimConfig:
     use_network: bool = True
     verbose: bool = True
 
+    # Swarm-elicited parameter overrides — optional, [SWARM-ELICITED] epistemic tier.
+    # Shape: {"lambda_multipliers": {type: mult}, "threshold_shifts": {type: shift}}
+    # Produced by api/services/swarm_calibration_service.py before simulation runs.
+    # Do NOT conflate with GDPR-grounded calibration; see swarm service docstring.
+    parameter_overrides: dict | None = None
+
     run_llm_strategic: bool = False
     """Run 5 strategic LLM agents alongside population agents.
 
@@ -346,6 +352,7 @@ def run_hybrid_simulation(
             type_distribution=config.type_distribution,
             policy_severity=policy_severity,
             seed=config.seed,
+            parameter_overrides=config.parameter_overrides,
         )
         agents = None
         agents_by_id = {}

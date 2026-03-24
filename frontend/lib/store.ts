@@ -22,9 +22,13 @@ interface AnalyzeState {
   isLoading: boolean;
   error: string | null;
   evidencePackResult: EvidencePackResult | null;
+  /** Increments each time a new result arrives — used to remount EvidencePackSection */
+  runId: number;
 
   setPolicy: (name: string, description: string, severity: number) => void;
   setFromSpec: (spec: PolicySpec) => void;
+  /** Atomically populate from an upload result — sets spec + pre-computed result. */
+  setFromSpecWithResult: (spec: PolicySpec, result: SimulateResponse) => void;
   setSimConfig: (patch: Partial<SimConfigRequest>) => void;
   setResult: (result: SimulateResponse) => void;
   setLoading: (loading: boolean) => void;
@@ -42,6 +46,7 @@ export const useAnalyzeStore = create<AnalyzeState>((set) => ({
   isLoading: false,
   error: null,
   evidencePackResult: null,
+  runId: 0,
 
   setPolicy: (policyName, policyDescription, policySeverity) =>
     set({ policyName, policyDescription, policySeverity }),
@@ -59,10 +64,36 @@ export const useAnalyzeStore = create<AnalyzeState>((set) => ({
       },
     }),
 
+  setFromSpecWithResult: (spec, result) =>
+    set((s) => ({
+      policyName: spec.name,
+      policyDescription: spec.description,
+      policySeverity: spec.severity,
+      simConfig: {
+        ...DEFAULT_SIM_CONFIG,
+        compute_cost_factor: spec.compute_cost_factor,
+        n_population: spec.recommended_n_population,
+        num_rounds: spec.recommended_num_rounds,
+      },
+      result,
+      isLoading: false,
+      error: null,
+      evidencePackResult: null,
+      runId: s.runId + 1,
+    })),
+
   setSimConfig: (patch) =>
     set((s) => ({ simConfig: { ...s.simConfig, ...patch } })),
 
-  setResult: (result) => set({ result, isLoading: false, error: null }),
+  // Reset evidencePackResult and bump runId so EvidencePackSection remounts fresh
+  setResult: (result) =>
+    set((s) => ({
+      result,
+      isLoading: false,
+      error: null,
+      evidencePackResult: null,
+      runId: s.runId + 1,
+    })),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error, isLoading: false }),
   setEvidencePackResult: (evidencePackResult) => set({ evidencePackResult }),
@@ -147,6 +178,8 @@ interface InfluenceState {
   error: string | null;
 
   setPolicy: (name: string, description: string, severity: number) => void;
+  /** Sync policy from Analyze store — also clears previous injection result */
+  syncPolicy: (name: string, description: string, severity: number) => void;
   setInjection: (patch: Partial<InjectionConfig>) => void;
   setSimParams: (patch: { nPopulation?: number; numRounds?: number; seed?: number }) => void;
   setResult: (result: InjectionResult) => void;
@@ -174,6 +207,9 @@ export const useInfluenceStore = create<InfluenceState>((set) => ({
 
   setPolicy: (policyName, policyDescription, policySeverity) =>
     set({ policyName, policyDescription, policySeverity }),
+
+  syncPolicy: (policyName, policyDescription, policySeverity) =>
+    set({ policyName, policyDescription, policySeverity, result: null }),
 
   setInjection: (patch) =>
     set((s) => ({ injection: { ...s.injection, ...patch } })),

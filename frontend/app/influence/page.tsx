@@ -2,7 +2,7 @@
 
 import { AppShell } from "@/components/layout/AppShell";
 import { runInjection } from "@/lib/api-client";
-import { useInfluenceStore } from "@/lib/store";
+import { useInfluenceStore, useAnalyzeStore } from "@/lib/store";
 import { formatPct, formatDelta } from "@/lib/format";
 import {
   LineChart,
@@ -15,7 +15,7 @@ import {
   ReferenceLine,
   ResponsiveContainer,
 } from "recharts";
-import { Activity } from "lucide-react";
+import { Activity, RefreshCw } from "lucide-react";
 
 function ResilienceScoreCard({ score }: { score: number }) {
   const scoreColor =
@@ -48,6 +48,21 @@ function ResilienceScoreCard({ score }: { score: number }) {
 
 export default function InfluencePage() {
   const store = useInfluenceStore();
+  const analyzeStore = useAnalyzeStore();
+
+  // Whether there's a recent Analyze simulation we can sync from
+  const analyzeHasResult = !!analyzeStore.result;
+  const isDesync =
+    analyzeHasResult &&
+    analyzeStore.policyName !== store.policyName;
+
+  function handleSyncFromAnalyze() {
+    store.syncPolicy(
+      analyzeStore.policyName,
+      analyzeStore.policyDescription,
+      analyzeStore.policySeverity,
+    );
+  }
 
   async function handleRun() {
     store.setLoading(true);
@@ -102,6 +117,28 @@ export default function InfluencePage() {
               </p>
             </div>
           </div>
+
+          {/* Sync banner — appears when Analyze has a different policy loaded */}
+          {isDesync && (
+            <button
+              onClick={handleSyncFromAnalyze}
+              className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs"
+              style={{
+                background:   "rgba(180,30,40,0.06)",
+                border:       "1px solid rgba(180,30,40,0.2)",
+                color:        "var(--crimson-700)",
+              }}
+            >
+              <RefreshCw size={12} />
+              <span className="flex-1 leading-4">
+                <strong>Use &ldquo;{analyzeStore.policyName}&rdquo;</strong>
+                <br />
+                <span style={{ color: "var(--ink-400)", fontWeight: 400 }}>
+                  Sync from your last Analyze simulation
+                </span>
+              </span>
+            </button>
+          )}
 
           {/* Policy */}
           <div className="card-warm p-4 space-y-3">

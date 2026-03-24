@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 from pydantic import BaseModel, Field
+from api.schemas.swarm import SwarmResult
 
 
 class SimConfigRequest(BaseModel):
@@ -36,6 +37,8 @@ class SimulateRequest(BaseModel):
     policy_description: str
     policy_severity: float = Field(..., ge=1.0, le=5.0)
     config: SimConfigRequest = Field(default_factory=SimConfigRequest)
+    use_swarm_elicitation: bool = False  # runs swarm before simulation if True
+    openai_api_key: str | None = None  # overrides env var for this request
 
 
 class RoundSummary(BaseModel):
@@ -76,3 +79,4 @@ class SimulateResponse(BaseModel):
     jurisdiction_summary: dict[str, Any]
     run_metadata: RunMetadata
     event_log: list[Any]
+    swarm_result: SwarmResult | None = None
