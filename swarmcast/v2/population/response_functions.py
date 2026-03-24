@@ -67,8 +67,22 @@ from typing import Literal
 
 _LAMBDA_LARGE = -8 / math.log(1 - 0.91)   # = 3.32 rounds
 _LAMBDA_SME   = -8 / math.log(1 - 0.52)   # = 10.9 rounds
-_LAMBDA_RESEARCHER = 15.0   # [ASSUMED] researchers are slowest to formally comply
-_LAMBDA_INVESTOR = 5.0      # [ASSUMED] investors adopt quickly to signal legitimacy
+
+# [DIRECTIONAL] Academic/research institutions: decentralised governance,
+# faculty autonomy, limited compliance infrastructure (Jisc 2020: <10% of FE
+# providers had a DPO at 24 months post-GDPR). 40+ enforcement actions against
+# universities years after GDPR go-live confirm persistent non-compliance.
+# Central estimate: ~20 rounds (60 months). FPF (2020) found HEIs "still
+# working out compliance" two full years in. Range: 18–22 rounds.
+_LAMBDA_RESEARCHER = 20.0
+
+# [DIRECTIONAL] Investment funds and financial institutions: pre-existing
+# MiFID II/AML/Basel compliance infrastructure provides ~4–5× higher
+# compliance spend vs. education (Ponemon/GlobalSCAPE). Large regulated
+# institutions converge faster (λ ≈ 3–5); smaller VCs and asset managers
+# are slower (λ ≈ 7–9). Blended investor category: 5–7 rounds.
+# Central estimate: 6 rounds (18 months).
+_LAMBDA_INVESTOR = 6.0
 
 
 COMPLIANCE_LAMBDA: dict[str, float] = {
