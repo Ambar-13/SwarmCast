@@ -16,6 +16,8 @@
   --ink-500:    #6B5744;
   --ink-400:    #8C7B68;
   --ink-300:    #A69485;
+  --ink-200:    #2B1E10;  /* migration compat — maps to primary text */
+  --ink-100:    #1A1208;  /* migration compat — maps to primary text (same as --ink-900) */
 
   /* Accent — crimson used SPARINGLY (buttons, active states, focus only) */
   --crimson-700: #8B1A1A;
@@ -143,6 +145,9 @@ body {
 
   /* ── Divider ──────────────────────────────────────────────────── */
   .divider-warm { @apply border-t; border-color: var(--border-warm); }
+
+  /* Stub — remove when all old references are cleared in analyze/page.tsx + Sidebar.tsx */
+  .hero-mesh {}
 }
 
 /* ── Animations ───────────────────────────────────────────────────── */
@@ -159,4 +164,15 @@ body {
 @layer utilities {
   .text-balance  { text-wrap: balance; }
   .font-mono-num { @apply metric-num; }
+
+  .animate-shimmer {
+    animation: shimmerWarm 1.6s infinite linear;
+    background-image: linear-gradient(
+      90deg,
+      var(--cream-200) 0%,
+      var(--cream-300) 40%,
+      var(--cream-200) 80%
+    );
+    background-size: 600px 100%;
+  }
 }
